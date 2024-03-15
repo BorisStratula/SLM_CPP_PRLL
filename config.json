@@ -1,0 +1,74 @@
+{
+  "processes": {
+	  "in parallel": 4
+  },
+  "path to project": "null",
+  "geometry": {
+	  "size": {
+		  "x": 1000e-6,
+		  "y": 1000e-6,
+		  "z": 400e-6
+	  },
+	  "step": {
+		  "x": 20e-6,
+		  "y": 20e-6,
+		  "z": 20e-6
+	  },
+		"powder thickness": 100e-6,
+		"buffer zone, elems": 1
+  },
+  "time": {
+	  "start": 0,
+	  "step": 1e-10,
+	  "iterations": 10000
+  },
+  "logging": {
+	  "log entries": 10
+  },
+  "temperatures": {
+	  "air": 293,
+	  "initial": 1600,
+	  "melting": 1923,
+	  "cut off": 2200
+  },
+  "mass": {
+	  "rho": {
+		  "solid": 4400,
+		  "packing": 0.65,
+		  "liquid": 3900
+	  }
+  },
+  "energy": {
+	"solid": {
+		"C": 770,
+		"KA": 0.01463,
+		"KB": -0.53614
+	},
+	"liquid": {
+		"C": 1150,
+		"KA": 0.01808,
+		"KB": -6.12967
+	},
+	"enthalpy": {
+		"fusion": 286000
+	}
+  },
+  "radiation": {
+	  "emmisivity": 1
+  },
+  "laser": {
+	"loc": {
+		"relative x": 0.9,
+		"relative y": 0.5,
+		"relative z": 1.0
+	},
+	"vel": {
+		"x": -10,
+		"y": 0,
+		"z": 0
+	},
+	"radius": 40e-6,
+	"power": 60000,
+	"state": true
+  }
+}
