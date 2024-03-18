@@ -93,6 +93,9 @@ void Mesh::createMesh() {
 		for (indexVector.y = 0; indexVector.y < resolution.y; indexVector.y++) {
 			for (indexVector.x = 0; indexVector.x < resolution.x; indexVector.x++) {
 				neighbours = Neighbours(indexVector, elemID, resolution);
+				if (Config::Geometry::mirrorYAxis) {
+					if (neighbours.yPlus == -1) neighbours.yPlus = neighbours.yMinus;
+				}
 				neighboursTruncated = neighbours;
 				neighboursTruncated.truncate();
 				createElement(elemID, indexVector, neighbours, neighboursTruncated, state);

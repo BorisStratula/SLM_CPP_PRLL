@@ -15,7 +15,7 @@ public:
 
 	void prepareDir() const;
 	void advance(TimeFlow& timeFlow, const BodyData& BODY_DATA) const;
-	void writeSolutionFile(const std::string& FILE_NAME, const BodyData& BODY_DATA) const;
+	void writeSolutionFile(const std::string& FILE_NAME, const BodyData& BODY_DATA, bool printTime) const;
 	void combineSolutionFiles(uint32_t iteration, uint32_t totalIterations) const;
 	std::string addPrefixZeroes(uint32_t value, uint32_t maxValue) const;
 };

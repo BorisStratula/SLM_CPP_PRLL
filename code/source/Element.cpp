@@ -27,7 +27,6 @@ bool Elem::init(uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEI
 	timesMelted = 0;
 	wasProcessed = false;
 	T = Config::Temperature::initial;
-	if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
 	H = HofT();
 	HFlow = 0.0;
@@ -44,8 +43,12 @@ bool Elem::valid() const {
 }
 
 double Elem::thermalConductivity() const {
-	double sigmoidConst = 1;
-	if (state == 0) sigmoidConst = Config::Misc::sigmoidConst;
+	double sigmoidConst = 1.0;
+	double sigmoidConstRev = 1.0;
+	if (state == 0) {
+		sigmoidConst = Config::Misc::sigmoidConst;
+		sigmoidConstRev = Config::Misc::sigmoidConstRev;
+	}
 	if (T == Config::Temperature::melting) {
 		double a1 = Config::Energy::Solid::KA;
 		double b1 = Config::Energy::Solid::KB;
@@ -53,7 +56,8 @@ double Elem::thermalConductivity() const {
 		double b2 = Config::Energy::Liquid::KB;
 		double ks = (a1 * T + b1) * sigmoidConst;
 		double kl = a2 * T + b2;
-		return ks + (kl - ks) * (H - Config::Energy::Enthalpy::minus) / (Config::Energy::Enthalpy::plus - Config::Energy::Enthalpy::minus);
+		return ks + (kl - ks) 
+			* (H * sigmoidConstRev - Config::Energy::Enthalpy::minusRegular) / (Config::Energy::Enthalpy::plusRegular - Config::Energy::Enthalpy::minusRegular);
 	}
 	else {
 		double a;
@@ -71,13 +75,32 @@ double Elem::thermalConductivity() const {
 }
 
 double Elem::TofH() const {
-	if (H < Config::Energy::Enthalpy::minus) return H * Config::Energy::Solid::mcRev;
-	else if (H > Config::Energy::Enthalpy::minus and H <= Config::Energy::Enthalpy::plus) return Config::Temperature::melting;
-	else return Config::Temperature::melting + (H - Config::Energy::Enthalpy::plus) * Config::Energy::Liquid::mcRev;
+	double HMinus;
+	double HPlus;
+	double mcRev;
+	if (state == 0) {
+		HMinus = Config::Energy::Enthalpy::minusPowder;
+		HPlus = Config::Energy::Enthalpy::plusPowder;
+		mcRev = Config::Energy::Powder::mcRev;
+	}
+	else {
+		HMinus = Config::Energy::Enthalpy::minusRegular;
+		HPlus = Config::Energy::Enthalpy::plusRegular;
+		if (state == 1) {
+			mcRev = Config::Energy::Liquid::mcRev;
+		}
+		else {
+			mcRev = Config::Energy::Solid::mcRev;
+		}
+	}
+	if (H < HMinus) return H * mcRev;
+	else if (H > HMinus and H <= HPlus) return Config::Temperature::melting;
+	else return Config::Temperature::melting + (H - HPlus) * mcRev;
 }
 
 double Elem::HofT() const {
-	if (T > Config::Temperature::melting) return Config::Energy::Liquid::mc * (T - Config::Temperature::melting) + Config::Energy::Enthalpy::plus;
+	if (T > Config::Temperature::melting) return Config::Energy::Liquid::mc * (T - Config::Temperature::melting) + Config::Energy::Enthalpy::plusRegular;
+	else if (state == 0) return Config::Energy::Powder::mc * T;
 	else return Config::Energy::Solid::mc * T;
 }
 
@@ -88,35 +111,27 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	double thetaZ = thetaI(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr);
 	double theta = Config::Geometry::surfaceArea * (thetaX + thetaY + thetaZ);
 	double q = 0.0;
-	double sideWallsCoolingRate = 0.0;
-	double sideWallFlowRestrictor = 1.0;
 	if (neighbours.zPlus == -1) {
 		q = LASER->heatToElem(this);
 	}
 	qDebug = q;
 	double M = radiantFlux();
+	M += wallFlux(neighbours);
 	MDebug = M;
-	double FExt = q - M - sideWallsCoolingRate;
-	double enthalpyFlow = (theta + FExt) * Config::Time::step * sideWallFlowRestrictor;
+	double FExt = q - M;
+	double enthalpyFlow = (theta + FExt) * Config::Time::step;
 	return enthalpyFlow;
 }
 
 double Elem::thetaI(int32_t forwardID, int32_t backwardID, uint32_t axis, const MeshSector* const MESH_SECTOR) const {
-	double h;
-	if (axis == 1) h = Config::Geometry::step.x;
-	else if (axis == 2) h = Config::Geometry::step.y;
-	else h = Config::Geometry::step.z;
-	double divider = 2 * h * h;
-	return (thetaF(forwardID, MESH_SECTOR) - thetaB(backwardID, MESH_SECTOR)) / divider;
+	return (thetaF(forwardID, MESH_SECTOR) - thetaB(backwardID, MESH_SECTOR)) * Config::Geometry::stepCoeff;
 }
 
 double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR) const {
-	ID;
 	return (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
 }
 
 double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR) const {
-	ID;
 	return (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
 }
 
@@ -125,9 +140,22 @@ double Elem::radiantFlux() const {
 	else return onSurface * Config::Geometry::surfaceArea * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
 }
 
+double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
+	if (onSurface == 0) return 0;
+	else {
+		double totalFlux = 0.0;
+		if (NEIGHBOURS.xMinus == -1 or NEIGHBOURS.xPlus) totalFlux += k * (T - Config::Temperature::initial);
+		if (NEIGHBOURS.yMinus == -1 or NEIGHBOURS.yPlus) totalFlux += k * (T - Config::Temperature::initial);
+		if (NEIGHBOURS.zMinus == -1) totalFlux += k * (T - Config::Temperature::initial);
+		if (NEIGHBOURS.zPlus == -1) totalFlux += 0.022 * (T - Config::Temperature::air);
+		return totalFlux * Config::Geometry::surfaceArea;
+	}
+}
+
 void Elem::chechState() {
 	if (T > Config::Temperature::melting) {
 		if (state == 2 or state == 0) {
+			if (state == 0) HofT();
 			state = 1;
 			timesMelted += 1;
 		}

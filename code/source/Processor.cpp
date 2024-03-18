@@ -7,6 +7,7 @@ uint32_t Processor::step = 0;
 Processor::Processor() {
 	start();
 	flag = false;
+	highPriority = true;
 }
 
 Processor::~Processor() {

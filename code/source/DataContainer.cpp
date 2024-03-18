@@ -14,7 +14,7 @@ DataContainer::DataContainer() {
 	laserPtr = nullptr;
 	timeFlowPtr = nullptr;
 	stepsInIsolation = 0;
-	maxStepsInIsolation = Config::Geometry::buffer.x* (uint32_t)Config::Geometry::bufferStepMult;
+	maxStepsInIsolation = Config::Geometry::buffer.x;
 	timeToSync = false;
 }
 

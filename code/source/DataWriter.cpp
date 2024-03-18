@@ -15,12 +15,14 @@ DataWriter::DataWriter(TimeFlow& timeFlow, const BodyData& BODY_DATA) {
     advance(timeFlow, BODY_DATA);
 }
 
-void DataWriter::advance(TimeFlow& timeFlow, const BodyData& BODY_DATA) const {
+void DataWriter::advance(TimeFlow& timeFlow, const BodyData& BODY_DATA) const{
     uint32_t iteration = timeFlow.iterationLogger;
     uint32_t totalIterations = timeFlow.desiredLogEntries;
+    bool printTime = false;
+    if (iteration == 0) printTime = true;
     std::string fileIndex = addPrefixZeroes(iteration, totalIterations);
     std::string fileName = "/data_" + fileIndex + ".vtu";
-    writeSolutionFile(fileName, BODY_DATA);
+    writeSolutionFile(fileName, BODY_DATA, printTime);
     combineSolutionFiles(iteration, totalIterations);
     timeFlow.timerCalculation.restart();
 }
@@ -54,7 +56,7 @@ std::string DataWriter::addPrefixZeroes(uint32_t value, uint32_t maxValue) const
     return str;
 }
 
-void DataWriter::writeSolutionFile(const std::string& FILE_NAME, const BodyData& BODY_DATA) const {
+void DataWriter::writeSolutionFile(const std::string& FILE_NAME, const BodyData& BODY_DATA, bool printTime) const {
     Timer timer = Timer();
     timer.start();
     const int dim = 3;
@@ -68,13 +70,13 @@ void DataWriter::writeSolutionFile(const std::string& FILE_NAME, const BodyData&
     writer.add_cell_scalar_field("thermal conductivity", BODY_DATA.k);
     writer.add_cell_scalar_field("under laser", BODY_DATA.underLaser);
     writer.add_cell_scalar_field("laser specific powe", BODY_DATA.qDebug);
-    writer.add_cell_scalar_field("radiant flux", BODY_DATA.MDebug);
+    writer.add_cell_scalar_field("wall flux", BODY_DATA.MDebug);
     writer.add_cell_scalar_field("times melted", BODY_DATA.timesMelted);
     writer.add_cell_scalar_field("state", BODY_DATA.state);
     writer.add_cell_scalar_field("sector", BODY_DATA.sector);
 
     writer.write_volume_mesh(solutionDir + FILE_NAME, dim, cell_size, BODY_DATA.nodalCoords, BODY_DATA.elemVertices);
-    std::cout << "writeSolutionFile " + timer.formatElapsed() + '\n';
+    if (printTime) std::cout << "write Solution File " + timer.formatElapsed() + '\n';
 }
 
 void DataWriter::combineSolutionFiles(uint32_t iteration, uint32_t totalIterations) const {

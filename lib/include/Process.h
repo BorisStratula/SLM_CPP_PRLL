@@ -13,7 +13,7 @@ private:
 public:
 	volatile bool finished = false;
 protected:
-	bool highPriority = true;
+	bool highPriority = false;
 	int processId;
 	volatile bool shutdown = false;
 

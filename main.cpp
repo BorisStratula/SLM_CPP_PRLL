@@ -2,6 +2,7 @@
 
 int main()
 {
+	printIntro();
 	Config::readConfig();
 	auto timeFlow = TimeFlow();
 	auto* laser = new Laser[Config::Processes::inParallel]();
@@ -42,5 +43,6 @@ int main()
 	if (processors) {
 		delete[] processors;
 	}
+	printOutro();
 	return 0;
 }

@@ -19,7 +19,8 @@ Laser::~Laser() {
 }
 
 void Laser::advance() {
-	vec = vec + velScaled;
+	if (vec.x > 0) vec = vec + velScaled;
+	else vec = vec + Config::Geometry::size.dot(Vec3(1.0, 0.0, 0.0)) - Vec3(0.0, Laser::radius, 0.0);
 }
 
 double Laser::heatToElem(Elem* const ELEM) const {

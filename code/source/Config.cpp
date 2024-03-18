@@ -52,6 +52,12 @@ void Config::readConfig() {
 			double{ processedFile["geometry"]["step"]["y"] },
 			double{ processedFile["geometry"]["step"]["z"] }
 		);
+		Geometry::stepRev = Vec3(
+			1 / Geometry::step.x,
+			1 / Geometry::step.y,
+			1 / Geometry::step.z
+		);
+		Geometry::stepCoeff = 0.5 * Geometry::stepRev.x * Geometry::stepRev.x;
 		Geometry::powderThickness = double{ processedFile["geometry"]["powder thickness"] };
 		Geometry::surfaceArea = Geometry::step.x * Geometry::step.y;
 		Geometry::buffer = IntVec3(
@@ -59,7 +65,7 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
-		Geometry::bufferStepMult = int{ processedFile["geometry"]["buffer step multiplier"] };
+		Geometry::mirrorYAxis = bool{ processedFile["geometry"]["mirror y-axis"] };
 
 
 		Time::start = double{ processedFile["time"]["start"] };
@@ -82,7 +88,10 @@ void Config::readConfig() {
 		Mass::Rho::liquid = double{ processedFile["mass"]["rho"]["liquid"] };
 		Mass::solid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::solid;
 		Mass::liquid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::liquid;
+		Mass::powder = Mass::solid * Mass::Rho::packing;
 
+		Misc::sigmoidConst = 1 / (1 + exp(-12.0 * Mass::Rho::packing + 6.0));
+		Misc::sigmoidConstRev = 1 / Misc::sigmoidConst;
 
 		Energy::Solid::C = double{ processedFile["energy"]["solid"]["C"] };
 		Energy::Solid::KA = double{ processedFile["energy"]["solid"]["KA"] };
@@ -94,9 +103,14 @@ void Config::readConfig() {
 		Energy::Liquid::KB = double{ processedFile["energy"]["liquid"]["KB"] };
 		Energy::Liquid::mc = Mass::liquid * Energy::Liquid::C;
 		Energy::Liquid::mcRev = 1 / Energy::Liquid::mc;
+		Energy::Powder::C = Energy::Solid::C;
+		Energy::Powder::mc = Mass::powder * Energy::Powder::C;
+		Energy::Powder::mcRev = 1 / Energy::Powder::mc;
 		Energy::Enthalpy::fusion = double{ processedFile["energy"]["enthalpy"]["fusion"] };
-		Energy::Enthalpy::minus = Mass::solid * Energy::Solid::C * Temperature::melting;
-		Energy::Enthalpy::plus = Energy::Enthalpy::minus + Mass::solid * Energy::Enthalpy::fusion;
+		Energy::Enthalpy::minusRegular = Mass::solid * Energy::Solid::C * Temperature::melting;
+		Energy::Enthalpy::plusRegular = Energy::Enthalpy::minusRegular + Mass::solid * Energy::Enthalpy::fusion;
+		Energy::Enthalpy::minusPowder = Mass::powder * Energy::Powder::C * Temperature::melting;
+		Energy::Enthalpy::plusPowder = Energy::Enthalpy::minusPowder + Mass::powder * Energy::Enthalpy::fusion;
 
 
 		Radiation::stefanBoltzmannConst = 5.67e-8;
@@ -119,7 +133,6 @@ void Config::readConfig() {
 		Laser::state = bool{ processedFile["laser"]["state"] };
 
 
-		Misc::sigmoidConst = 1 / (1 + exp(-12.0 * Mass::Rho::packing + 6.0));
 		uint32_t xRes = (uint32_t)round(Geometry::size.x / Geometry::step.x);
 		uint32_t yRes = (uint32_t)round(Geometry::size.y / Geometry::step.y);
 		uint32_t zRes = (uint32_t)round(Geometry::size.z / Geometry::step.z);
@@ -137,10 +150,12 @@ uint32_t    Config::Processes::inParallel = 0;
 std::string Config::Directory::project = "null";
 Vec3        Config::Geometry::size = Vec3();
 Vec3        Config::Geometry::step = Vec3();
+Vec3        Config::Geometry::stepRev = Vec3();
+double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 IntVec3     Config::Geometry::buffer = IntVec3();
-double      Config::Geometry::bufferStepMult = 0.0;
+bool        Config::Geometry::mirrorYAxis = false;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;
@@ -155,6 +170,7 @@ double      Config::Mass::Rho::packing = 0.0;
 double      Config::Mass::Rho::liquid = 0.0;
 double      Config::Mass::solid = 0.0;
 double      Config::Mass::liquid = 0.0;
+double      Config::Mass::powder = 0.0;
 double      Config::Energy::Solid::C = 0.0;
 double      Config::Energy::Solid::KA = 0.0;
 double      Config::Energy::Solid::KB = 0.0;
@@ -165,9 +181,14 @@ double      Config::Energy::Liquid::KA = 0.0;
 double      Config::Energy::Liquid::KB = 0.0;
 double      Config::Energy::Liquid::mc = 0.0;
 double      Config::Energy::Liquid::mcRev = 0.0;
+double      Config::Energy::Powder::C = 0.0;
+double      Config::Energy::Powder::mc = 0.0;
+double      Config::Energy::Powder::mcRev = 0.0;
 double      Config::Energy::Enthalpy::fusion = 0.0;
-double      Config::Energy::Enthalpy::minus = 0.0;
-double      Config::Energy::Enthalpy::plus = 0.0;
+double      Config::Energy::Enthalpy::minusRegular = 0.0;
+double      Config::Energy::Enthalpy::plusRegular = 0.0;
+double      Config::Energy::Enthalpy::minusPowder = 0.0;
+double      Config::Energy::Enthalpy::plusPowder = 0.0;
 double      Config::Radiation::stefanBoltzmannConst = 0.0;
 double      Config::Radiation::emmisivity = 0.0;
 double      Config::Radiation::fluxConst = 0.0;
@@ -175,6 +196,7 @@ Vec3        Config::Laser::vec = Vec3();
 Vec3        Config::Laser::vel = Vec3();
 double      Config::Laser::radius = 0.0;
 double      Config::Laser::power = 0.0;
-bool        Config::Laser::state = 0.0;
+bool        Config::Laser::state = false;
 double      Config::Misc::sigmoidConst = 0.0;
+double      Config::Misc::sigmoidConstRev = 0.0;
 double      Config::Misc::coolingPowerPerNode = 0.0;

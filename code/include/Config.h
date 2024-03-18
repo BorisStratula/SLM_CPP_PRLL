@@ -20,10 +20,12 @@ public:
 	struct Geometry {
 		static Vec3 size;
 		static Vec3 step;
+		static Vec3 stepRev;
+		static double stepCoeff;
 		static double powderThickness;
 		static double surfaceArea;
 		static IntVec3 buffer;
-		static double bufferStepMult;
+		static bool mirrorYAxis;
 	};
 
 	struct Time {
@@ -52,6 +54,7 @@ public:
 		};
 		static double solid;
 		static double liquid;
+		static double powder;
 	};
 
 	struct Energy {
@@ -69,10 +72,17 @@ public:
 			static double mc;
 			static double mcRev;
 		};
+		struct Powder {
+			static double C;
+			static double mc;
+			static double mcRev;
+		};
 		struct Enthalpy {
-			static double minus;
 			static double fusion;
-			static double plus;
+			static double minusRegular;
+			static double plusRegular;
+			static double minusPowder;
+			static double plusPowder;
 		};
 	};
 
@@ -92,6 +102,7 @@ public:
 
 	struct Misc {
 		static double sigmoidConst;
+		static double sigmoidConstRev;
 		static double coolingPowerPerNode;
 	};
 };
