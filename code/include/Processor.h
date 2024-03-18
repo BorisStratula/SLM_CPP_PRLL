@@ -10,6 +10,8 @@ class Processor : public Process {
 public:
 	std::mutex mtx;
 	DataContainer* data = nullptr;
+	static uint32_t step;
+	bool flag;
 
 	Processor();
 	~Processor();

@@ -10,6 +10,7 @@ class TimeFlow;
 class DataContainer {
 public:
 	MeshSector* meshSectorPtr;
+	MeshSector* allSectorsPtr;
 	Laser* laserPtr;
 	TimeFlow* timeFlowPtr;
 	uint32_t stepsInIsolation;
@@ -20,7 +21,7 @@ public:
 	DataContainer();
 	~DataContainer();
 
-	void init(MeshSector* meshSectors, Laser* laser, TimeFlow* timeFlow);
+	void init(MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow);
 	void advance();
 	void sync(MeshSector* meshSectors);
 	static void syncContainers(MeshSector* meshSectors, DataContainer* dataContainers);

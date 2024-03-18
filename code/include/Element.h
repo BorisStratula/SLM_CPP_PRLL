@@ -33,13 +33,6 @@ public:
 	MeshSector* meshSectorPtr = nullptr;
 	int32_t persistentElemID = 0;
 	int32_t persistentSectorID = 0;
-	//struct LocalConfig {
-	//	double surfaceArea;
-	//	double sKA;
-	//	double sBK;
-	//	double lKA;
-	//	double lKB;
-	//} localConfig;
 
 	~Elem();
 

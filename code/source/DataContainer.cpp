@@ -10,10 +10,11 @@ uint32_t DataContainer::readyCount = 0;
 
 DataContainer::DataContainer() {
 	meshSectorPtr = nullptr;
+	allSectorsPtr = nullptr;
 	laserPtr = nullptr;
 	timeFlowPtr = nullptr;
 	stepsInIsolation = 0;
-	maxStepsInIsolation = Config::Geometry::buffer.x;
+	maxStepsInIsolation = Config::Geometry::buffer.x* (uint32_t)Config::Geometry::bufferStepMult;
 	timeToSync = false;
 }
 
@@ -21,8 +22,9 @@ DataContainer::~DataContainer() {
 
 }
 
-void DataContainer::init(MeshSector* meshSectors, Laser* laser, TimeFlow* timeFlow) {
+void DataContainer::init(MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow) {
 	meshSectorPtr = meshSectors;
+	allSectorsPtr = allMeshSectors;
 	laserPtr = laser;
 	timeFlowPtr = timeFlow;
 	stepsInIsolation = 0;

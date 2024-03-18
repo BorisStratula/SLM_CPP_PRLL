@@ -36,11 +36,6 @@ bool Elem::init(uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEI
 	meshSectorPtr = nullptr;
 	persistentElemID = -1;
 	persistentSectorID = -1;
-	//localConfig.surfaceArea = Config::Geometry::surfaceArea;
-	//localConfig.sKA = Config::Energy::Solid::KA;
-	//localConfig.sKB = Config::Energy::Solid::KB;
-	//	localConfig.lKA = Config::Energy::Liquid::KA;
-	//	localConfig.lKB = Config::Energy::Liquid::KB;
 	return true;
 }
 

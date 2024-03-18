@@ -59,6 +59,7 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
+		Geometry::bufferStepMult = int{ processedFile["geometry"]["buffer step multiplier"] };
 
 
 		Time::start = double{ processedFile["time"]["start"] };
@@ -139,6 +140,7 @@ Vec3        Config::Geometry::step = Vec3();
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 IntVec3     Config::Geometry::buffer = IntVec3();
+double      Config::Geometry::bufferStepMult = 0.0;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;

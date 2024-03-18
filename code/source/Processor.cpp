@@ -2,9 +2,11 @@
 #include "../include/DataContainer.h"
 #include "../include/Config.h"
 
+uint32_t Processor::step = 0;
 
 Processor::Processor() {
 	start();
+	flag = false;
 }
 
 Processor::~Processor() {
@@ -15,21 +17,19 @@ bool Processor::process() {
 	{
 		std::lock_guard<std::mutex> mtxLock(mtx);
 		if (data) {
-			if (data->timeToSync == false) {
-				data->advance();
+			flag = false;
+			if (Processor::step == 0) {
+				if (data->timeToSync == false) {
+					data->advance();
+				}
+				else flag = true;
 			}
-			//if (data->timeToSync == true) {
-			//	DataContainer::readyCount++;
-			//	while (1) {
-			//		if (DataContainer::readyCount == Config::Processes::inParallel) {
-			//			data->sync(data->meshSectorPtr);
-			//			DataContainer::readyCount = 0;
-			//			break;
-			//		}
-			//		
-			//	}
-			//	
-			//}
+			else if (Processor::step == 1) {
+				if (data->timeToSync == true) {
+					data->sync(data->allSectorsPtr);
+				}
+				flag = true;
+			}
 		}
 	}
 	return true;
@@ -37,7 +37,7 @@ bool Processor::process() {
 
 bool Processor::isReady() {
 	std::lock_guard<std::mutex> mtxLock(mtx);
-	return data->timeToSync;
+	return flag;
 }
 
 bool Processor::putData(DataContainer* dataContainers) {

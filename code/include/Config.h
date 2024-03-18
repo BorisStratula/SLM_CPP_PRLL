@@ -23,6 +23,7 @@ public:
 		static double powderThickness;
 		static double surfaceArea;
 		static IntVec3 buffer;
+		static double bufferStepMult;
 	};
 
 	struct Time {

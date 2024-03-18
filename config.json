@@ -1,12 +1,12 @@
 {
   "processes": {
-	  "in parallel": 4
+	  "in parallel": 12
   },
   "path to project": "null",
   "geometry": {
 	  "size": {
-		  "x": 1000e-6,
-		  "y": 1000e-6,
+		  "x": 4000e-6,
+		  "y": 4000e-6,
 		  "z": 400e-6
 	  },
 	  "step": {
@@ -15,12 +15,13 @@
 		  "z": 20e-6
 	  },
 		"powder thickness": 100e-6,
-		"buffer zone, elems": 1
+		"buffer zone, elems": 1,
+		"buffer step multiplier": 1
   },
   "time": {
 	  "start": 0,
 	  "step": 1e-10,
-	  "iterations": 10000
+	  "iterations": 1000
   },
   "logging": {
 	  "log entries": 10
