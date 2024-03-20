@@ -54,6 +54,14 @@ double Vec3::len() const {
 	return sqrt(x * x + y * y + z * z);
 }
 
+double Vec3::lenXY() const {
+	return sqrt(x * x + y * y);
+}
+
+double Vec3::sumOfComponents() const {
+	return x + y + z;
+}
+
 void Vec3::overwrite(double newX, double newY, double newZ) {
 	x = newX;
 	y = newY;

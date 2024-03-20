@@ -9,7 +9,7 @@ Neighbours::Neighbours() {
 	zMinus = 0;
 	zPlus = 0;
 	origin = 0;
-	onSurface = 0;
+	onSurface = IntVec3();
 }
 
 
@@ -21,7 +21,7 @@ Neighbours::Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RES
 	zMinus = zMinusID(INDEX_VEC, ID, RESOLUTION);
 	zPlus = zPlusID(INDEX_VEC, ID, RESOLUTION);
 	origin = (int32_t)ID;
-	onSurface = 0;
+	onSurface = IntVec3();
 }
 
 
@@ -88,26 +88,26 @@ int32_t Neighbours::zPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3
 void Neighbours::truncate() {
 	if (xMinus == -1) {
 		xMinus = origin;
-		onSurface += 1;
+		onSurface.x += 1;
 	}
 	if (xPlus == -1) {
 		xPlus = origin;
-		onSurface += 1;
+		onSurface.x += 1;
 	}
 	if (yMinus == -1) {
 		yMinus = origin;
-		onSurface += 1;
+		onSurface.y += 1;
 	}
 	if (yPlus == -1) {
 		yPlus = origin;
-		onSurface += 1;
+		onSurface.y += 1;
 	}
 	if (zMinus == -1) {
 		zMinus = origin;
-		onSurface += 1;
+		onSurface.z += 1;
 	}
 	if (zPlus == -1) {
 		zPlus = origin;
-		onSurface += 1;
+		onSurface.z += 1;
 	}
 }

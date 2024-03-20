@@ -25,6 +25,7 @@ public:
 		static double powderThickness;
 		static double surfaceArea;
 		static IntVec3 buffer;
+		static bool mirrorXAxis;
 		static bool mirrorYAxis;
 	};
 

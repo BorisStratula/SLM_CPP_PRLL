@@ -9,6 +9,7 @@
 uint32_t DataContainer::readyCount = 0;
 
 DataContainer::DataContainer() {
+	ID = 0;
 	meshSectorPtr = nullptr;
 	allSectorsPtr = nullptr;
 	laserPtr = nullptr;
@@ -22,7 +23,8 @@ DataContainer::~DataContainer() {
 
 }
 
-void DataContainer::init(MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow) {
+void DataContainer::init(size_t _ID, MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow) {
+	ID = _ID;
 	meshSectorPtr = meshSectors;
 	allSectorsPtr = allMeshSectors;
 	laserPtr = laser;
@@ -33,7 +35,7 @@ void DataContainer::init(MeshSector* meshSectors, MeshSector* allMeshSectors, La
 void DataContainer::advance() {
 	if (timeFlowPtr) timeFlowPtr->advance();
 	meshSectorPtr->advance();
-	laserPtr->advance();
+	if (ID == Config::Processes::inParallel - 1) laserPtr->advance();
 	stepsInIsolation++;
 	if (stepsInIsolation == maxStepsInIsolation) timeToSync = true;
 }

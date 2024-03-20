@@ -12,7 +12,7 @@ Elem::~Elem() {
 	}
 }
 
-bool Elem::init(uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
+bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
 	if (vertices != nullptr) return false;
 	ID = _ID;
 	globalID = _ID;
@@ -20,8 +20,12 @@ bool Elem::init(uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEI
 	neighbours = NEIGHBOURS;
 	neighboursTruncated = NEIGHBOURS_TRUNCATED;
 	onSurface = neighboursTruncated.onSurface;
-	vec = Config::Geometry::step.dot(INDEX_VECTOR);
+	elemScaleVec = Vec3(1.0, 1.0, 1.0);
+	nodeScaleVec = Vec3(1.0, 1.0, 1.0);
 	index = INDEX_VECTOR;
+	vecInit(elems);
+	fetchConfig();
+	applyMirror();
 	state = STATE;
 	underLaser = 0;
 	timesMelted = 0;
@@ -44,10 +48,10 @@ bool Elem::valid() const {
 
 double Elem::thermalConductivity() const {
 	double sigmoidConst = 1.0;
-	double massConstRev = 1.0;
+	double rhoConstRev = 1.0;
 	if (state == 0) {
 		sigmoidConst = Config::Misc::sigmoidConst;
-		massConstRev = Config::Mass::Rho::packingRev;
+		rhoConstRev = Config::Mass::Rho::packingRev;
 	}
 	if (T == Config::Temperature::melting) {
 		double a1 = Config::Energy::Solid::KA;
@@ -56,8 +60,9 @@ double Elem::thermalConductivity() const {
 		double b2 = Config::Energy::Liquid::KB;
 		double ks = (a1 * T + b1) * sigmoidConst;
 		double kl = a2 * T + b2;
-		return ks + (kl - ks) 
-			* (H * massConstRev - Config::Energy::Enthalpy::minusRegular) / (Config::Energy::Enthalpy::plusRegular - Config::Energy::Enthalpy::minusRegular);
+		double fracTop = (kl - ks) * (H * rhoConstRev - localConfig.energy.enthalpy.minusRegular);
+		double fracBot = localConfig.energy.enthalpy.plusRegular - localConfig.energy.enthalpy.minusRegular;
+		return ks + fracTop / fracBot;
 	}
 	else {
 		double a;
@@ -79,18 +84,18 @@ double Elem::TofH() const {
 	double HPlus;
 	double mcRev;
 	if (state == 0) {
-		HMinus = Config::Energy::Enthalpy::minusPowder;
-		HPlus = Config::Energy::Enthalpy::plusPowder;
-		mcRev = Config::Energy::Powder::mcRev;
+		HMinus = localConfig.energy.enthalpy.minusPowder;
+		HPlus = localConfig.energy.enthalpy.plusPowder;
+		mcRev = localConfig.energy.powder.mcRev;
 	}
 	else {
-		HMinus = Config::Energy::Enthalpy::minusRegular;
-		HPlus = Config::Energy::Enthalpy::plusRegular;
+		HMinus = localConfig.energy.enthalpy.minusRegular;
+		HPlus = localConfig.energy.enthalpy.plusRegular;
 		if (state == 1) {
-			mcRev = Config::Energy::Liquid::mcRev;
+			mcRev = localConfig.energy.liquid.mcRev;
 		}
 		else {
-			mcRev = Config::Energy::Solid::mcRev;
+			mcRev = localConfig.energy.solid.mcRev;
 		}
 	}
 	if (H < HMinus) return H * mcRev;
@@ -99,58 +104,132 @@ double Elem::TofH() const {
 }
 
 double Elem::HofT() const {
-	if (T > Config::Temperature::melting) return Config::Energy::Liquid::mc * (T - Config::Temperature::melting) + Config::Energy::Enthalpy::plusRegular;
-	else if (state == 0) return Config::Energy::Powder::mc * T;
-	else return Config::Energy::Solid::mc * T;
+	if (T > Config::Temperature::melting) return localConfig.energy.liquid.mc * (T - Config::Temperature::melting) + localConfig.energy.enthalpy.plusRegular;
+	else if (state == 0) return localConfig.energy.powder.mc * T;
+	else return localConfig.energy.solid.mc * T;
 }
 
 double Elem::enthalpyFlow(const Laser* LASER) {
 	wasProcessed = false;
-	double thetaX = thetaI(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr);
-	double thetaY = thetaI(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr);
-	double thetaZ = thetaI(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr);
-	double theta = Config::Geometry::surfaceArea * (thetaX + thetaY + thetaZ);
+	Vec3 thetaVec = Vec3(
+		thetaI(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr),
+		thetaI(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
+		thetaI(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr)
+	);
+	thetaVec = thetaVec.dot(localConfig.geometry.surfaceArea);
+	double theta = thetaVec.x + thetaVec.y + thetaVec.z;
 	double q = laserFlux(LASER);
 	qDebug = q;
 	double M = radiantFlux();
-	M += wallFlux(neighbours);
+	//M += wallFlux(neighbours);
 	MDebug = M;
 	double FExt = q - M;
 	double enthalpyFlow = (theta + FExt) * Config::Time::step;
 	return enthalpyFlow;
 }
 
-double Elem::thetaI(int32_t forwardID, int32_t backwardID, uint32_t axis, const MeshSector* const MESH_SECTOR) const {
-	return (thetaF(forwardID, MESH_SECTOR) - thetaB(backwardID, MESH_SECTOR)) * Config::Geometry::stepCoeff;
+double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const {
+	return thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS);
 }
 
-double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR) const {
-	return (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
+double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
+	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
+	if (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.x) * 0.5;
+	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.y) * 0.5;
+	else t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.z) * 0.5;
+	return t;
 }
 
-double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR) const {
-	return (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
+double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
+	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
+	if (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.x) * 0.5;
+	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.y) * 0.5;
+	else t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.z) * 0.5;
+	return t;
 }
 
 double Elem::laserFlux(const Laser* LASER) {
-	if (neighbours.zPlus == -1) return LASER->heatToElem(this);
+	if (neighbours.zPlus == -1) return LASER->heatToElem(this) * localConfig.geometry.surfaceArea.z;
 	else return 0.0;
 }
 
 double Elem::radiantFlux() const {
-	if (onSurface == 0) return 0.0;
-	else return onSurface * Config::Geometry::surfaceArea * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
+	if (onSurface.sumOfComponents() == 0) return 0.0;
+	else return (localConfig.geometry.surfaceArea.dot(onSurface)).sumOfComponents() * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
 }
 
 double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
-	if (onSurface == 0) return 0.0;
+	if (onSurface.sumOfComponents() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if (NEIGHBOURS.xMinus == -1 or NEIGHBOURS.xPlus == -1) totalFlux += k * (T - Config::Temperature::air);
-		if (NEIGHBOURS.yMinus == -1 or NEIGHBOURS.yPlus == -1) totalFlux += k * (T - Config::Temperature::air);
-		if (NEIGHBOURS.zMinus == -1) totalFlux += k * (T - Config::Temperature::air);
-		if (NEIGHBOURS.zPlus == -1) totalFlux += 0.022 * (T - Config::Temperature::air);
-		return totalFlux * Config::Geometry::surfaceArea * Config::Geometry::stepRev.x;
+		if (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
+		if (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
+		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if (NEIGHBOURS.zPlus == -1) totalFlux += localConfig.geometry.surfaceArea.z * 0.022 * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		return totalFlux;
+	}
+}
+
+void Elem::vecInit(Elem* elems) {
+	if (index.x > 10) elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
+	if (index.x >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(2.0, 1.0, 1.0));
+	if (index.y > 10) elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
+	if (index.y >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 2.0, 1.0));
+	//if (index.z < 10 - 5) elemScaleVec = elemScaleVec.dot(Vec3(1.0, 1.0, 2.0));
+	//if (index.z <= 10 - 5) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 1.0, 2.0));
+
+	if (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
+	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 1.0, 0.0)).dot(elemScaleVec);
+	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 0.0, 1.0)).dot(elemScaleVec);
+	else vec = Vec3(0.0, 0.0, 0.0);
+}
+
+void Elem::fetchConfig() {
+	localConfig.geometry.step = Config::Geometry::step.dot(nodeScaleVec);
+	localConfig.geometry.stepRev = Vec3(
+		1 / localConfig.geometry.step.x,
+		1 / localConfig.geometry.step.y,
+		1 / localConfig.geometry.step.z
+	);
+	localConfig.geometry.stepCoeff = Vec3(
+		0.5 * localConfig.geometry.stepRev.x * localConfig.geometry.stepRev.x,
+		0.5 * localConfig.geometry.stepRev.y * localConfig.geometry.stepRev.y,
+		0.5 * localConfig.geometry.stepRev.z * localConfig.geometry.stepRev.z
+	);
+	localConfig.geometry.surfaceArea = Vec3(
+		localConfig.geometry.step.y * localConfig.geometry.step.z,
+		localConfig.geometry.step.x * localConfig.geometry.step.z,
+		localConfig.geometry.step.x * localConfig.geometry.step.y
+	);
+	localConfig.mass.solid = localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::solid;
+	localConfig.mass.liquid = localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::liquid;
+	localConfig.mass.powder = localConfig.mass.solid * Config::Mass::Rho::packing;
+	localConfig.energy.solid.mc = localConfig.mass.solid * Config::Energy::Solid::C;
+	localConfig.energy.solid.mcRev = 1 / localConfig.energy.solid.mc;
+	localConfig.energy.liquid.mc = localConfig.mass.liquid * Config::Energy::Liquid::C;
+	localConfig.energy.liquid.mcRev = 1 / localConfig.energy.liquid.mc;
+	localConfig.energy.powder.mc = localConfig.mass.powder * Config::Energy::Solid::C;
+	localConfig.energy.powder.mcRev = 1 / localConfig.energy.powder.mc;
+	localConfig.energy.enthalpy.minusRegular = localConfig.mass.solid * Config::Energy::Solid::C * Config::Temperature::melting;
+	localConfig.energy.enthalpy.plusRegular = localConfig.energy.enthalpy.minusRegular + localConfig.mass.solid * Config::Energy::Enthalpy::fusion;
+	localConfig.energy.enthalpy.minusPowder = localConfig.mass.powder * Config::Energy::Solid::C * Config::Temperature::melting;
+	localConfig.energy.enthalpy.plusPowder = localConfig.energy.enthalpy.minusPowder + localConfig.mass.powder * Config::Energy::Enthalpy::fusion;
+}
+
+void Elem::applyMirror() {
+	if (Config::Geometry::mirrorXAxis) {
+		if (neighbours.xMinus == -1) {
+			neighbours.xMinus = neighbours.xPlus;
+			neighboursTruncated.xMinus = neighbours.xMinus;
+			onSurface.x--;
+		}
+	}
+	if (Config::Geometry::mirrorYAxis) {
+		if (neighbours.yMinus == -1) {
+			neighbours.yMinus = neighbours.yPlus;
+			neighboursTruncated.yMinus = neighbours.yMinus;
+			onSurface.y--;
+		}
 	}
 }
 

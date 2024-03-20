@@ -75,8 +75,11 @@ void MeshSector::copyThisElem(const Elem* elem) {
 	elems[vacantElemID].neighbours = elem->neighbours;
 	elems[vacantElemID].neighboursTruncated = elem->neighboursTruncated;
 	elems[vacantElemID].onSurface = elem->onSurface;
-	elems[vacantElemID].vec = elem->vec;
+	elems[vacantElemID].elemScaleVec = elem->elemScaleVec;
+	elems[vacantElemID].nodeScaleVec = elem->nodeScaleVec;
 	elems[vacantElemID].index = elem->index;
+	elems[vacantElemID].vec = elem->vec;
+	elems[vacantElemID].localConfig = elem->localConfig;
 	elems[vacantElemID].state = elem->state;
 	elems[vacantElemID].underLaser = elem->underLaser;
 	elems[vacantElemID].timesMelted = elem->timesMelted;

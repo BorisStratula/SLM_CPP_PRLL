@@ -16,6 +16,8 @@ public:
 	IntVec3 operator +(const IntVec3& V) const;
 	IntVec3 operator -(const IntVec3& V) const;
 	IntVec3 operator *(int32_t a) const;
+
+	int32_t sumOfComponents() const;
 };
 
 #endif // !INTVEC3_H

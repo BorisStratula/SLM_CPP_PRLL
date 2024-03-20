@@ -43,23 +43,23 @@ Mesh::~Mesh() {
 void Mesh::createElement(uint32_t elemID, const IntVec3& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
 	uint32_t nodeID;
 	auto* newElem = &elems[elemID];
-	if (newElem->init(elemID, INDEX_VEC, NEIGHBOURS, NEIGHBOURS_TRUNCATED, STATE) != true) {
+	if (newElem->init(elems ,elemID, INDEX_VEC, NEIGHBOURS, NEIGHBOURS_TRUNCATED, STATE) != true) {
 		std::exit(2);
 	}
 	else {
 		for (uint32_t nodePos = 0; nodePos < 8; nodePos++) {
-			nodeID = findNodeForElement(nodePos, newElem->vec, NEIGHBOURS);
+			nodeID = findNodeForElement(nodePos, newElem->vec, newElem->nodeScaleVec, NEIGHBOURS);
 			newElem->vertices[nodePos] = nodeID;
 		}
 	}
 }
 
-void Mesh::createNode(uint32_t nodeID, uint32_t nodePos, const Vec3& ANCHOR_VEC) {
-	Vec3 vec = Node::nodalVec(nodePos, ANCHOR_VEC);
+void Mesh::createNode(uint32_t nodeID, uint32_t nodePos, const Vec3& ANCHOR_VEC, const Vec3& NODE_SCALE_VEC) {
+	Vec3 vec = Node::nodalVec(nodePos, ANCHOR_VEC, NODE_SCALE_VEC);
 	nodes[nodeID] = Node(nodeID, vec);
 }
 
-uint32_t Mesh::findNodeForElement(uint32_t nodePos, const Vec3& ELEM_VEC, const Neighbours& NEIGHBOURS) {
+uint32_t Mesh::findNodeForElement(uint32_t nodePos, const Vec3& ELEM_VEC, const Vec3& NODE_SCALE_VEC, const Neighbours& NEIGHBOURS) {
 	const int32_t RELATIONS[8][3] = { {3, 1, 4},{2, -1, 5},{-1, -1, 6},{-1, 2, 7},{7, 5, -1},{6, -1, -1},{-1, -1, -1},{-1, 6, -1} };
 	uint32_t nodeID;
 	if (NEIGHBOURS.xMinus != -1 and RELATIONS[nodePos][0] != -1) {
@@ -73,7 +73,7 @@ uint32_t Mesh::findNodeForElement(uint32_t nodePos, const Vec3& ELEM_VEC, const 
 	}
 	else {
 		nodeID = currentNodeID++;
-		createNode(nodeID, nodePos, ELEM_VEC);
+		createNode(nodeID, nodePos, ELEM_VEC, NODE_SCALE_VEC);
 	}
 	return nodeID;
 }
@@ -93,9 +93,6 @@ void Mesh::createMesh() {
 		for (indexVector.y = 0; indexVector.y < resolution.y; indexVector.y++) {
 			for (indexVector.x = 0; indexVector.x < resolution.x; indexVector.x++) {
 				neighbours = Neighbours(indexVector, elemID, resolution);
-				if (Config::Geometry::mirrorYAxis) {
-					if (neighbours.yPlus == -1) neighbours.yPlus = neighbours.yMinus;
-				}
 				neighboursTruncated = neighbours;
 				neighboursTruncated.truncate();
 				createElement(elemID, indexVector, neighbours, neighboursTruncated, state);
@@ -105,6 +102,10 @@ void Mesh::createMesh() {
 	}
 	std::cout << "mesh created, " << timer.formatElapsed() << " elems = " << elemsCount << " nodes = " << nodesCount << std::endl;
 	std::cout << "mesh resolution " << resolution.x << "x" << resolution.y << "x" << resolution.z << " elems" << std::endl;
+	std::cout << "geometry dimentions " 
+		<< Config::Geometry::size.x * 1000.0 << "mm x-axis," 
+		<< Config::Geometry::size.y * 1000.0 << "mm y-axis,"
+		<< Config::Geometry::size.z * 1000.0 << "mm z-axis" << std::endl;
 }
 
 void Mesh::sectorPreprocessor(MeshSector* meshSectors, Laser* laser) {
@@ -153,7 +154,7 @@ void Mesh::sectorGeometryCalculator(MeshSector* meshSectors) {
 
 void Mesh::sectorLaserAssign(MeshSector* meshSectors, Laser* laser) {
 	for (size_t i = 0; i < meshSectors->count; i++) {
-		meshSectors[i].laserPtr = &laser[i];
+		meshSectors[i].laserPtr = laser;
 	}
 }
 

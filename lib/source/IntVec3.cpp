@@ -27,3 +27,7 @@ IntVec3 IntVec3::operator -(const IntVec3& V) const {
 IntVec3 IntVec3::operator *(int32_t a) const {
 	return IntVec3(a * x, a * y, a * z);
 }
+
+int32_t IntVec3::sumOfComponents() const {
+	return x + y + z;
+}

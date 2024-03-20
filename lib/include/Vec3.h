@@ -20,6 +20,8 @@ public:
 	Vec3 cross(const Vec3& V) const;
 	Vec3 multiply(const double& A) const;
 	double len() const;
+	double lenXY() const;
+	double sumOfComponents() const;
 	void overwrite(double x, double y, double z);
 };
 

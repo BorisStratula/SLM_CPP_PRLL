@@ -14,7 +14,7 @@ public:
 	int32_t zMinus;
 	int32_t zPlus;
 	int32_t origin;
-	uint32_t onSurface;
+	IntVec3 onSurface;
 
 	Neighbours();
 	Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION);

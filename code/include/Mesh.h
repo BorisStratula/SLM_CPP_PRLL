@@ -29,8 +29,8 @@ public:
 	~Mesh();
 
 	void createElement(uint32_t elemID, const IntVec3& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE);
-	void createNode(uint32_t nodeID, uint32_t nodePos, const Vec3& ANCHOR_VEC);
-	uint32_t findNodeForElement(uint32_t nodePos, const Vec3& elemVec, const Neighbours& NEIGHBOURS);
+	void createNode(uint32_t nodeID, uint32_t nodePos, const Vec3& ANCHOR_VEC, const Vec3& NODE_SCALE_VEC);
+	uint32_t findNodeForElement(uint32_t nodePos, const Vec3& ELEM_VEC, const Vec3& NODE_SCALE_VEC, const Neighbours& NEIGHBOURS);
 	void createMesh();
 	void sectorPreprocessor(MeshSector* meshSectors, Laser* laser);
 	void sectorGeometryCalculator(MeshSector* meshSectors);

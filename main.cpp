@@ -5,9 +5,9 @@ int main()
 	printIntro();
 	Config::readConfig();
 	auto timeFlow = TimeFlow();
-	auto* laser = new Laser[Config::Processes::inParallel]();
+	auto laser = Laser();
 	auto* meshSectors = new MeshSector[Config::Processes::inParallel]();
-	auto mesh = Mesh(meshSectors, laser);
+	auto mesh = Mesh(meshSectors, &laser);
 	auto bodyData = BodyData(&mesh, meshSectors);
 	auto dataWriter = DataWriter(timeFlow, bodyData);
 	auto* dataContainers = new DataContainer[Config::Processes::inParallel]();
@@ -16,7 +16,7 @@ int main()
 	for (size_t i = 0; i < Config::Processes::inParallel; i++) {
 		auto* timeFlowPtr = &timeFlow;
 		if (i != Config::Processes::inParallel - 1) timeFlowPtr = nullptr;
-		dataContainers[i].init(&meshSectors[i], meshSectors, &laser[i], timeFlowPtr);
+		dataContainers[i].init(i, &meshSectors[i], meshSectors, &laser, timeFlowPtr);
 		processors[i].putData(&dataContainers[i]);
 	}
 

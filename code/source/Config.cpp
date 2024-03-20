@@ -65,6 +65,7 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
+		Geometry::mirrorXAxis = bool{ processedFile["geometry"]["mirror x-axis"] };
 		Geometry::mirrorYAxis = bool{ processedFile["geometry"]["mirror y-axis"] };
 
 
@@ -156,6 +157,7 @@ double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 IntVec3     Config::Geometry::buffer = IntVec3();
+bool        Config::Geometry::mirrorXAxis = false;
 bool        Config::Geometry::mirrorYAxis = false;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;

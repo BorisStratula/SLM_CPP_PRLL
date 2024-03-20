@@ -5,9 +5,9 @@
   "path to project": "null",
   "geometry": {
 	  "size": {
-		  "x": 600e-6,
-		  "y": 20e-6,
-		  "z": 20e-6
+		  "x": 400e-6,
+		  "y": 400e-6,
+		  "z": 200e-6
 	  },
 	  "step": {
 		  "x": 20e-6,
@@ -16,6 +16,7 @@
 	  },
 		"powder thickness": 100e-6,
 		"buffer zone, elems": 1,
+		"mirror x-axis": true,
 		"mirror y-axis": true
   },
   "time": {
@@ -59,8 +60,8 @@
   },
   "laser": {
 	"loc": {
-		"relative x": 0.9,
-		"relative y": 0.9,
+		"relative x": 0.1,
+		"relative y": 0.1,
 		"relative z": 1.0
 	},
 	"vel": {
@@ -69,7 +70,7 @@
 		"z": 0
 	},
 	"radius": 40e-6,
-	"power": 600,
+	"power": 6000,
 	"state": true
   }
 }

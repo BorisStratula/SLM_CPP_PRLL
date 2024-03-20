@@ -9,6 +9,7 @@ class TimeFlow;
 
 class DataContainer {
 public:
+	size_t ID;
 	MeshSector* meshSectorPtr;
 	MeshSector* allSectorsPtr;
 	Laser* laserPtr;
@@ -21,7 +22,7 @@ public:
 	DataContainer();
 	~DataContainer();
 
-	void init(MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow);
+	void init(size_t ID, MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow);
 	void advance();
 	void sync(MeshSector* meshSectors);
 	static void syncContainers(MeshSector* meshSectors, DataContainer* dataContainers);

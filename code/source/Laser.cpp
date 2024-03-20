@@ -11,7 +11,7 @@ Laser::Laser() {
 	radius = Config::Laser::radius;
 	power = Config::Laser::power;
 	state = Config::Laser::state;
-	precalcConst = Config::Geometry::surfaceArea * power / M_PI / pow(radius, 2.0);
+	specificPower = power / M_PI / pow(radius, 2.0);
 }
 
 Laser::~Laser() {
@@ -26,19 +26,19 @@ void Laser::advance() {
 	// s-shaped pattern
 	vec = vec + velScaled;
 	if (vec.x <= 0) {
-		vec = vec - Vec3(0.0, Laser::radius, 0.0);
+		vec = vec + Vec3(0.0, Laser::radius, 0.0);
 		velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
 		vec = vec + velScaled.multiply(2.0);
 	}
 	if (vec.x > Config::Geometry::size.x) {
-		vec = vec - Vec3(0.0, Laser::radius, 0.0);
+		vec = vec + Vec3(0.0, Laser::radius, 0.0);
 		velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
 		vec = vec + velScaled.multiply(2.0);
 	}
 }
 
 double Laser::heatToElem(Elem* const ELEM) const {
-	double distance = (vec - ELEM->vec).len();
+	double distance = (vec - ELEM->vec).lenXY();
 	if (!state) {
 		return 0;
 	}
@@ -48,6 +48,6 @@ double Laser::heatToElem(Elem* const ELEM) const {
 	}
 	else {
 		ELEM->underLaser = 1;
-		return precalcConst;
+		return specificPower;
 	}
 }

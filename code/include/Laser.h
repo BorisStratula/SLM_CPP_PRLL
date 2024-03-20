@@ -13,7 +13,7 @@ public:
 	Vec3 velScaled;
 	double radius;
 	double power;
-	double precalcConst;
+	double specificPower;
 	bool state;
 
 	Laser();
