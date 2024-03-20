@@ -34,6 +34,11 @@ int main()
 			}
 		}
 		if (timeFlow.logThisStep) {
+			//if (timeFlow.iterationLogger == 15) {
+			//	for (size_t i = 0; i < Config::Processes::inParallel; i++) {
+			//		laser[i].state = false;
+			//	}
+			//}
 			timeFlow.removeFlag();
 			bodyData.advance(meshSectors);
 			dataWriter.advance(timeFlow, bodyData);

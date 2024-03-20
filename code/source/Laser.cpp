@@ -19,8 +19,22 @@ Laser::~Laser() {
 }
 
 void Laser::advance() {
-	if (vec.x > 0) vec = vec + velScaled;
-	else vec = vec + Config::Geometry::size.dot(Vec3(1.0, 0.0, 0.0)) - Vec3(0.0, Laser::radius, 0.0);
+	// z-shaped pattern
+	//if (vec.x > 0) vec = vec + velScaled;
+	//else vec = vec + Config::Geometry::size.dot(Vec3(1.0, 0.0, 0.0)) - Vec3(0.0, Laser::radius, 0.0);
+	// 
+	// s-shaped pattern
+	vec = vec + velScaled;
+	if (vec.x <= 0) {
+		vec = vec - Vec3(0.0, Laser::radius, 0.0);
+		velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
+		vec = vec + velScaled.multiply(2.0);
+	}
+	if (vec.x > Config::Geometry::size.x) {
+		vec = vec - Vec3(0.0, Laser::radius, 0.0);
+		velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
+		vec = vec + velScaled.multiply(2.0);
+	}
 }
 
 double Laser::heatToElem(Elem* const ELEM) const {

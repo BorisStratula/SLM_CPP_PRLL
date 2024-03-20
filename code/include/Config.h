@@ -50,6 +50,7 @@ public:
 		struct Rho {
 			static double solid;
 			static double packing;
+			static double packingRev;
 			static double liquid;
 		};
 		static double solid;

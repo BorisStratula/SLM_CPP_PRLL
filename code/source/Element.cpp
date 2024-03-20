@@ -44,10 +44,10 @@ bool Elem::valid() const {
 
 double Elem::thermalConductivity() const {
 	double sigmoidConst = 1.0;
-	double sigmoidConstRev = 1.0;
+	double massConstRev = 1.0;
 	if (state == 0) {
 		sigmoidConst = Config::Misc::sigmoidConst;
-		sigmoidConstRev = Config::Misc::sigmoidConstRev;
+		massConstRev = Config::Mass::Rho::packingRev;
 	}
 	if (T == Config::Temperature::melting) {
 		double a1 = Config::Energy::Solid::KA;
@@ -57,7 +57,7 @@ double Elem::thermalConductivity() const {
 		double ks = (a1 * T + b1) * sigmoidConst;
 		double kl = a2 * T + b2;
 		return ks + (kl - ks) 
-			* (H * sigmoidConstRev - Config::Energy::Enthalpy::minusRegular) / (Config::Energy::Enthalpy::plusRegular - Config::Energy::Enthalpy::minusRegular);
+			* (H * massConstRev - Config::Energy::Enthalpy::minusRegular) / (Config::Energy::Enthalpy::plusRegular - Config::Energy::Enthalpy::minusRegular);
 	}
 	else {
 		double a;
@@ -110,10 +110,7 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	double thetaY = thetaI(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr);
 	double thetaZ = thetaI(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr);
 	double theta = Config::Geometry::surfaceArea * (thetaX + thetaY + thetaZ);
-	double q = 0.0;
-	if (neighbours.zPlus == -1) {
-		q = LASER->heatToElem(this);
-	}
+	double q = laserFlux(LASER);
 	qDebug = q;
 	double M = radiantFlux();
 	M += wallFlux(neighbours);
@@ -135,20 +132,25 @@ double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR) con
 	return (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
 }
 
+double Elem::laserFlux(const Laser* LASER) {
+	if (neighbours.zPlus == -1) return LASER->heatToElem(this);
+	else return 0.0;
+}
+
 double Elem::radiantFlux() const {
-	if (onSurface == 0) return 0;
+	if (onSurface == 0) return 0.0;
 	else return onSurface * Config::Geometry::surfaceArea * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
 }
 
 double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
-	if (onSurface == 0) return 0;
+	if (onSurface == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if (NEIGHBOURS.xMinus == -1 or NEIGHBOURS.xPlus) totalFlux += k * (T - Config::Temperature::initial);
-		if (NEIGHBOURS.yMinus == -1 or NEIGHBOURS.yPlus) totalFlux += k * (T - Config::Temperature::initial);
-		if (NEIGHBOURS.zMinus == -1) totalFlux += k * (T - Config::Temperature::initial);
+		if (NEIGHBOURS.xMinus == -1 or NEIGHBOURS.xPlus == -1) totalFlux += k * (T - Config::Temperature::air);
+		if (NEIGHBOURS.yMinus == -1 or NEIGHBOURS.yPlus == -1) totalFlux += k * (T - Config::Temperature::air);
+		if (NEIGHBOURS.zMinus == -1) totalFlux += k * (T - Config::Temperature::air);
 		if (NEIGHBOURS.zPlus == -1) totalFlux += 0.022 * (T - Config::Temperature::air);
-		return totalFlux * Config::Geometry::surfaceArea;
+		return totalFlux * Config::Geometry::surfaceArea * Config::Geometry::stepRev.x;
 	}
 }
 

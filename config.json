@@ -6,8 +6,8 @@
   "geometry": {
 	  "size": {
 		  "x": 600e-6,
-		  "y": 600e-6,
-		  "z": 200e-6
+		  "y": 20e-6,
+		  "z": 20e-6
 	  },
 	  "step": {
 		  "x": 20e-6,
@@ -21,14 +21,14 @@
   "time": {
 	  "start": 0,
 	  "step": 1e-10,
-	  "iterations": 1000000
+	  "iterations": 100000
   },
   "logging": {
 	  "log entries": 100
   },
   "temperatures": {
-	  "air": 1600,
-	  "initial": 1600,
+	  "air": 1000,
+	  "initial": 1000,
 	  "melting": 1923,
 	  "cut off": 2200
   },
@@ -64,12 +64,12 @@
 		"relative z": 1.0
 	},
 	"vel": {
-		"x": -10,
+		"x": 0,
 		"y": 0,
 		"z": 0
 	},
 	"radius": 40e-6,
-	"power": 6000,
+	"power": 600,
 	"state": true
   }
 }

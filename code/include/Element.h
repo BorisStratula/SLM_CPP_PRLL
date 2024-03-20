@@ -46,6 +46,7 @@ public:
 	double thetaI(int32_t forwardID, int32_t backwardID, uint32_t axis, const MeshSector* const MESH_SECTOR) const;
 	double thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR) const;
 	double thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR) const;
+	double laserFlux(const Laser* LASER);
 	double radiantFlux() const;
 	double wallFlux(const Neighbours& NEIGHBOURS) const;
 	void chechState();

@@ -85,6 +85,7 @@ void Config::readConfig() {
 
 		Mass::Rho::solid = double{ processedFile["mass"]["rho"]["solid"] };
 		Mass::Rho::packing = double{ processedFile["mass"]["rho"]["packing"] };
+		Mass::Rho::packingRev = 1 / Mass::Rho::packing;
 		Mass::Rho::liquid = double{ processedFile["mass"]["rho"]["liquid"] };
 		Mass::solid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::solid;
 		Mass::liquid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::liquid;
@@ -167,6 +168,7 @@ double      Config::Temperature::melting = 0.0;
 double      Config::Temperature::cutOff = 0.0;
 double      Config::Mass::Rho::solid = 0.0;
 double      Config::Mass::Rho::packing = 0.0;
+double      Config::Mass::Rho::packingRev = 0.0;
 double      Config::Mass::Rho::liquid = 0.0;
 double      Config::Mass::solid = 0.0;
 double      Config::Mass::liquid = 0.0;
