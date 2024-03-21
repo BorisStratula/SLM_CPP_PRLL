@@ -85,12 +85,12 @@ double Elem::TofH() const {
 	double mcRev;
 	if (state == 0) {
 		HMinus = localConfig.energy.enthalpy.minusPowder;
-		HPlus = localConfig.energy.enthalpy.plusPowder;
-		mcRev = localConfig.energy.powder.mcRev;
+		HPlus =  localConfig.energy.enthalpy.plusPowder;
+		mcRev =  localConfig.energy.powder.mcRev;
 	}
 	else {
 		HMinus = localConfig.energy.enthalpy.minusRegular;
-		HPlus = localConfig.energy.enthalpy.plusRegular;
+		HPlus =  localConfig.energy.enthalpy.plusRegular;
 		if (state == 1) {
 			mcRev = localConfig.energy.liquid.mcRev;
 		}
@@ -98,15 +98,15 @@ double Elem::TofH() const {
 			mcRev = localConfig.energy.solid.mcRev;
 		}
 	}
-	if (H < HMinus) return H * mcRev;
+	if                     (H < HMinus) return H * mcRev;
 	else if (H > HMinus and H <= HPlus) return Config::Temperature::melting;
-	else return Config::Temperature::melting + (H - HPlus) * mcRev;
+	else                                return Config::Temperature::melting + (H - HPlus) * mcRev;
 }
 
 double Elem::HofT() const {
 	if (T > Config::Temperature::melting) return localConfig.energy.liquid.mc * (T - Config::Temperature::melting) + localConfig.energy.enthalpy.plusRegular;
-	else if (state == 0) return localConfig.energy.powder.mc * T;
-	else return localConfig.energy.solid.mc * T;
+	else if (state == 0)                  return localConfig.energy.powder.mc * T;
+	else                                  return localConfig.energy.solid.mc * T;
 }
 
 double Elem::enthalpyFlow(const Laser* LASER) {
@@ -130,22 +130,43 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 
 double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const {
 	return thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS);
+	
+	//double fracTop = (thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS)) * 2.0;
+	//double fracBot;
+	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
+	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
+	//else                fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
+	//return fracTop / fracBot;
 }
 
 double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	if (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.x) * 0.5;
-	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.y) * 0.5;
-	else t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.z) * 0.5;
+	if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.x);
+	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.y);
+	else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.z);
 	return t;
+
+	//double fracTop = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
+	//double fracBot;
+	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x) * 2.0;
+	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y) * 2.0;
+	//else                fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z) * 2.0;
+	//return fracTop / fracBot;
 }
 
 double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	if (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.x) * 0.5;
-	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.y) * 0.5;
-	else t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.z) * 0.5;
+	if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.x);
+	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.y);
+	else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.z);
 	return t;
+
+	//double fracTop = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
+	//double fracBot;
+	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x) * 2.0;
+	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y) * 2.0;
+	//else                fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z) * 2.0;
+	//return fracTop / fracBot;
 }
 
 double Elem::laserFlux(const Laser* LASER) {
@@ -162,23 +183,23 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 	if (onSurface.sumOfComponents() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
-		if (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
+		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
+		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
 		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
-		if (NEIGHBOURS.zPlus == -1) totalFlux += localConfig.geometry.surfaceArea.z * 0.022 * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if  (NEIGHBOURS.zPlus == -1) totalFlux += localConfig.geometry.surfaceArea.z * 0.022 * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
 		return totalFlux;
 	}
 }
 
 void Elem::vecInit(Elem* elems) {
-	if (index.x > 10) elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
+	if (index.x > 10)  elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
 	if (index.x >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(2.0, 1.0, 1.0));
-	if (index.y > 10) elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
+	if (index.y > 10)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
 	if (index.y >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 2.0, 1.0));
-	//if (index.z < 10 - 5) elemScaleVec = elemScaleVec.dot(Vec3(1.0, 1.0, 2.0));
+	//if (index.z < 10 - 5)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 1.0, 2.0));
 	//if (index.z <= 10 - 5) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 1.0, 2.0));
 
-	if (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
+	if      (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 1.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 0.0, 1.0)).dot(elemScaleVec);
 	else vec = Vec3(0.0, 0.0, 0.0);
@@ -192,28 +213,28 @@ void Elem::fetchConfig() {
 		1 / localConfig.geometry.step.z
 	);
 	localConfig.geometry.stepCoeff = Vec3(
-		0.5 * localConfig.geometry.stepRev.x * localConfig.geometry.stepRev.x,
-		0.5 * localConfig.geometry.stepRev.y * localConfig.geometry.stepRev.y,
-		0.5 * localConfig.geometry.stepRev.z * localConfig.geometry.stepRev.z
+		0.5 * 0.5 * localConfig.geometry.stepRev.x * localConfig.geometry.stepRev.x,
+		0.5 * 0.5 * localConfig.geometry.stepRev.y * localConfig.geometry.stepRev.y,
+		0.5 * 0.5 * localConfig.geometry.stepRev.z * localConfig.geometry.stepRev.z
 	);
 	localConfig.geometry.surfaceArea = Vec3(
 		localConfig.geometry.step.y * localConfig.geometry.step.z,
 		localConfig.geometry.step.x * localConfig.geometry.step.z,
 		localConfig.geometry.step.x * localConfig.geometry.step.y
 	);
-	localConfig.mass.solid = localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::solid;
+	localConfig.mass.solid =  localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::solid;
 	localConfig.mass.liquid = localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::liquid;
 	localConfig.mass.powder = localConfig.mass.solid * Config::Mass::Rho::packing;
-	localConfig.energy.solid.mc = localConfig.mass.solid * Config::Energy::Solid::C;
-	localConfig.energy.solid.mcRev = 1 / localConfig.energy.solid.mc;
+	localConfig.energy.solid.mc =  localConfig.mass.solid * Config::Energy::Solid::C;
 	localConfig.energy.liquid.mc = localConfig.mass.liquid * Config::Energy::Liquid::C;
-	localConfig.energy.liquid.mcRev = 1 / localConfig.energy.liquid.mc;
 	localConfig.energy.powder.mc = localConfig.mass.powder * Config::Energy::Solid::C;
+	localConfig.energy.solid.mcRev =  1 / localConfig.energy.solid.mc;
+	localConfig.energy.liquid.mcRev = 1 / localConfig.energy.liquid.mc;
 	localConfig.energy.powder.mcRev = 1 / localConfig.energy.powder.mc;
 	localConfig.energy.enthalpy.minusRegular = localConfig.mass.solid * Config::Energy::Solid::C * Config::Temperature::melting;
-	localConfig.energy.enthalpy.plusRegular = localConfig.energy.enthalpy.minusRegular + localConfig.mass.solid * Config::Energy::Enthalpy::fusion;
-	localConfig.energy.enthalpy.minusPowder = localConfig.mass.powder * Config::Energy::Solid::C * Config::Temperature::melting;
-	localConfig.energy.enthalpy.plusPowder = localConfig.energy.enthalpy.minusPowder + localConfig.mass.powder * Config::Energy::Enthalpy::fusion;
+	localConfig.energy.enthalpy.minusPowder =  localConfig.mass.powder * Config::Energy::Solid::C * Config::Temperature::melting;
+	localConfig.energy.enthalpy.plusRegular =  localConfig.energy.enthalpy.minusRegular + localConfig.mass.solid * Config::Energy::Enthalpy::fusion;
+	localConfig.energy.enthalpy.plusPowder =   localConfig.energy.enthalpy.minusPowder + localConfig.mass.powder * Config::Energy::Enthalpy::fusion;
 }
 
 void Elem::applyMirror() {

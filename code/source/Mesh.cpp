@@ -103,8 +103,8 @@ void Mesh::createMesh() {
 	std::cout << "mesh created, " << timer.formatElapsed() << " elems = " << elemsCount << " nodes = " << nodesCount << std::endl;
 	std::cout << "mesh resolution " << resolution.x << "x" << resolution.y << "x" << resolution.z << " elems" << std::endl;
 	std::cout << "geometry dimentions " 
-		<< Config::Geometry::size.x * 1000.0 << "mm x-axis," 
-		<< Config::Geometry::size.y * 1000.0 << "mm y-axis,"
+		<< Config::Geometry::size.x * 1000.0 << "mm x-axis, " 
+		<< Config::Geometry::size.y * 1000.0 << "mm y-axis, "
 		<< Config::Geometry::size.z * 1000.0 << "mm z-axis" << std::endl;
 }
 
