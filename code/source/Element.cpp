@@ -174,45 +174,37 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 }
 
 void Elem::vecInit(Elem* elems) {
-	IntVec3 centralElemIndex = Config::Geometry::resolution.dot(Vec3(0.5, 0.5, 1.0));
-	std::vector<std::vector<int32_t>> refine = {
-		{5, 10},
-		{5, 10},
-		{5, 10}
-	};
-	Vec3 elemMult = Vec3(1.0, 1.0, 1.0);
-	Vec3 nodeMult = Vec3(1.0, 1.0, 1.0);
-	for (size_t i = 0; i < refine[0].size(); i++) {
-		if (index.x <= (centralElemIndex.x - refine[0][i])) elemMult.x *= 2.0;
-		if (index.x < (centralElemIndex.x - refine[0][i])) nodeMult.x *= 2.0;
-		if (index.x > (centralElemIndex.x + refine[0][i])) elemMult.x *= 2.0;
-		if (index.x >= (centralElemIndex.x + refine[0][i])) nodeMult.x *= 2.0;
-	}
-	for (size_t i = 0; i < refine[1].size(); i++) {
-		if (index.y <= (centralElemIndex.y - refine[1][i])) elemMult.y *= 2.0;
-		if (index.y < (centralElemIndex.y - refine[1][i])) nodeMult.y *= 2.0;
-		if (index.y > (centralElemIndex.y + refine[1][i])) elemMult.y *= 2.0;
-		if (index.y >= (centralElemIndex.y + refine[1][i])) nodeMult.y *= 2.0;
-	}
-	for (size_t i = 0; i < refine[2].size(); i++) {
-		if (index.z <= (centralElemIndex.z - refine[2][i])) elemMult.z *= 2.0;
-		if (index.z < (centralElemIndex.z - refine[2][i])) nodeMult.z *= 2.0;
-		if (index.z > (centralElemIndex.z + refine[2][i])) elemMult.z *= 2.0;
-		if (index.z >= (centralElemIndex.z + refine[2][i])) nodeMult.z *= 2.0;
-	}
-	elemScaleVec = elemScaleVec.dot(elemMult);
-	nodeScaleVec = nodeScaleVec.dot(nodeMult);
-	//if (index.x > 10)  elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
-	//if (index.x >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(2.0, 1.0, 1.0));
-	//if (index.y > 10)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
-	//if (index.y >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 2.0, 1.0));
-	//if (index.z < 10 - 5)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 1.0, 2.0));
-	//if (index.z <= 10 - 5) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 1.0, 2.0));
-
+	scaleVecCalculate();
 	if      (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 1.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 0.0, 1.0)).dot(elemScaleVec);
 	else vec = Vec3(0.0, 0.0, 0.0);
+}
+
+void Elem::scaleVecCalculate() {
+	IntVec3 centralElemIndex = Config::Geometry::resolution.dot(Vec3(0.5, 0.5, 1.0));
+	Vec3 elemMult = Vec3(1.0, 1.0, 1.0);
+	Vec3 nodeMult = Vec3(1.0, 1.0, 1.0);
+	for (size_t i = 0; i < Config::Geometry::coarsen[0].size(); i++) {
+		if (index.x <= (centralElemIndex.x - Config::Geometry::coarsen[0][i])) elemMult.x *= 2.0;
+		if (index.x < (centralElemIndex.x - Config::Geometry::coarsen[0][i])) nodeMult.x *= 2.0;
+		if (index.x > (centralElemIndex.x + Config::Geometry::coarsen[0][i])) elemMult.x *= 2.0;
+		if (index.x >= (centralElemIndex.x + Config::Geometry::coarsen[0][i])) nodeMult.x *= 2.0;
+	}
+	for (size_t i = 0; i < Config::Geometry::coarsen[1].size(); i++) {
+		if (index.y <= (centralElemIndex.y - Config::Geometry::coarsen[1][i])) elemMult.y *= 2.0;
+		if (index.y < (centralElemIndex.y - Config::Geometry::coarsen[1][i])) nodeMult.y *= 2.0;
+		if (index.y > (centralElemIndex.y + Config::Geometry::coarsen[1][i])) elemMult.y *= 2.0;
+		if (index.y >= (centralElemIndex.y + Config::Geometry::coarsen[1][i])) nodeMult.y *= 2.0;
+	}
+	for (size_t i = 0; i < Config::Geometry::coarsen[2].size(); i++) {
+		if (index.z <= (centralElemIndex.z - Config::Geometry::coarsen[2][i])) elemMult.z *= 2.0;
+		if (index.z < (centralElemIndex.z - Config::Geometry::coarsen[2][i])) nodeMult.z *= 2.0;
+		if (index.z > (centralElemIndex.z + Config::Geometry::coarsen[2][i])) elemMult.z *= 2.0;
+		if (index.z >= (centralElemIndex.z + Config::Geometry::coarsen[2][i])) nodeMult.z *= 2.0;
+	}
+	elemScaleVec = elemScaleVec.dot(elemMult);
+	nodeScaleVec = nodeScaleVec.dot(nodeMult);
 }
 
 void Elem::fetchConfig() {

@@ -62,6 +62,9 @@ void Config::readConfig() {
 			1 / Geometry::step.y,
 			1 / Geometry::step.z
 		);
+		Geometry::coarsen.push_back(processedFile["geometry"]["coarsen after"]["x"].get<std::vector<int32_t>>());
+		Geometry::coarsen.push_back(processedFile["geometry"]["coarsen after"]["y"].get<std::vector<int32_t>>());
+		Geometry::coarsen.push_back(processedFile["geometry"]["coarsen after"]["z"].get<std::vector<int32_t>>());
 		Geometry::stepCoeff = 0.5 * Geometry::stepRev.x * Geometry::stepRev.x;
 		Geometry::powderThickness = double{ processedFile["geometry"]["powder thickness"] };
 		Geometry::surfaceArea = Geometry::step.x * Geometry::step.y;
@@ -159,6 +162,7 @@ std::string Config::Directory::project = "null";
 IntVec3     Config::Geometry::resolution = IntVec3();
 Vec3        Config::Geometry::step = Vec3();
 Vec3        Config::Geometry::stepRev = Vec3();
+std::vector<std::vector<int32_t>>     Config::Geometry::coarsen{};
 double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;

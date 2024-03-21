@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 #include "../../lib/include/vec3.h"
 
 class Config {
@@ -22,6 +23,7 @@ public:
 		static IntVec3 resolution;
 		static Vec3 step;
 		static Vec3 stepRev;
+		static std::vector<std::vector<int32_t>> coarsen;
 		static double stepCoeff;
 		static double powderThickness;
 		static double surfaceArea;

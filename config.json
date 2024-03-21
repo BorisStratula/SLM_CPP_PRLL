@@ -1,20 +1,25 @@
 {
   "processes": {
-	  "in parallel": 12
+	  "in parallel": 8
   },
   "path to project": "null",
   "geometry": {
 		"elems": {
-			"x": 60,
-			"y": 60,
-			"z": 20
+			"x": 40,
+			"y": 40,
+			"z": 30
 		},
-	  "step": {
-		  "x": 20e-6,
-		  "y": 20e-6,
-		  "z": 20e-6
-	  },
-		"powder thickness": 100e-6,
+		"step": {
+			"x": 20e-6,
+			"y": 20e-6,
+			"z": 20e-6
+		},
+		"coarsen after": {
+			"x": [ 7, 10, 13 ],
+			"y": [ 7, 10, 13 ],
+			"z": [ 7, 10, 13 ]
+		},
+		"powder thickness": 80e-6,
 		"buffer zone, elems": 1,
 		"mirror x-axis": false,
 		"mirror y-axis": false
@@ -60,8 +65,8 @@
   },
   "laser": {
 	"loc": {
-		"x": 0e-4,
-		"y": 19e-4,
+		"x": 8e-4,
+		"y": 15.8e-4,
 		"z": 0
 	},
 	"vel": {
