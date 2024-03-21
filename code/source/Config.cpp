@@ -42,10 +42,15 @@ void Config::readConfig() {
 		Directory::project = std::string{ processedFile["path to project"] };
 
 
-		Geometry::size = Vec3(
-			double{ processedFile["geometry"]["size"]["x"] },
-			double{ processedFile["geometry"]["size"]["y"] },
-			double{ processedFile["geometry"]["size"]["z"] }
+		//Geometry::size = Vec3(
+		//	double{ processedFile["geometry"]["size"]["x"] },
+		//	double{ processedFile["geometry"]["size"]["y"] },
+		//	double{ processedFile["geometry"]["size"]["z"] }
+		//);
+		Geometry::resolution = IntVec3(
+			int{ processedFile["geometry"]["elems"]["x"]},
+			int{ processedFile["geometry"]["elems"]["y"] },
+			int{ processedFile["geometry"]["elems"]["z"] }
 		);
 		Geometry::step = Vec3(
 			double{ processedFile["geometry"]["step"]["x"] },
@@ -120,11 +125,11 @@ void Config::readConfig() {
 		Radiation::fluxConst = Radiation::stefanBoltzmannConst * Radiation::emmisivity;
 
 
-		Laser::vec = Geometry::size.dot(Vec3(
-			double{ processedFile["laser"]["loc"]["relative x"] },
-			double{ processedFile["laser"]["loc"]["relative y"] },
-			double{ processedFile["laser"]["loc"]["relative z"] }
-		));
+		Laser::vec = Vec3(
+			double{ processedFile["laser"]["loc"]["x"] },
+			double{ processedFile["laser"]["loc"]["y"] },
+			double{ processedFile["laser"]["loc"]["z"] }
+		);
 		Laser::vel = Vec3(
 			double{ processedFile["laser"]["vel"]["x"] },
 			double{ processedFile["laser"]["vel"]["y"] },
@@ -135,11 +140,11 @@ void Config::readConfig() {
 		Laser::state = bool{ processedFile["laser"]["state"] };
 
 
-		uint32_t xRes = (uint32_t)round(Geometry::size.x / Geometry::step.x);
-		uint32_t yRes = (uint32_t)round(Geometry::size.y / Geometry::step.y);
-		uint32_t zRes = (uint32_t)round(Geometry::size.z / Geometry::step.z);
-		uint32_t coolingNodes = xRes * yRes + 2 * xRes * zRes + 2 * yRes * zRes;
-		Misc::coolingPowerPerNode = Laser::power / coolingNodes;
+		//uint32_t xRes = (uint32_t)round(Geometry::size.x / Geometry::step.x);
+		//uint32_t yRes = (uint32_t)round(Geometry::size.y / Geometry::step.y);
+		//uint32_t zRes = (uint32_t)round(Geometry::size.z / Geometry::step.z);
+		//uint32_t coolingNodes = xRes * yRes + 2 * xRes * zRes + 2 * yRes * zRes;
+		//Misc::coolingPowerPerNode = Laser::power / coolingNodes;
 	}
 	catch (...) {
 		std::cout << "Error while parsing config file" << std::endl;
@@ -150,7 +155,8 @@ void Config::readConfig() {
 
 uint32_t    Config::Processes::inParallel = 0;
 std::string Config::Directory::project = "null";
-Vec3        Config::Geometry::size = Vec3();
+//Vec3        Config::Geometry::size = Vec3();
+IntVec3     Config::Geometry::resolution = IntVec3();
 Vec3        Config::Geometry::step = Vec3();
 Vec3        Config::Geometry::stepRev = Vec3();
 double      Config::Geometry::stepCoeff = 0.0;
@@ -203,4 +209,4 @@ double      Config::Laser::power = 0.0;
 bool        Config::Laser::state = false;
 double      Config::Misc::sigmoidConst = 0.0;
 double      Config::Misc::sigmoidConstRev = 0.0;
-double      Config::Misc::coolingPowerPerNode = 0.0;
+//double      Config::Misc::coolingPowerPerNode = 0.0;

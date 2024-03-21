@@ -18,7 +18,8 @@ public:
 	};
 
 	struct Geometry {
-		static Vec3 size;
+		//static Vec3 size;
+		static IntVec3 resolution;
 		static Vec3 step;
 		static Vec3 stepRev;
 		static double stepCoeff;
@@ -105,7 +106,7 @@ public:
 	struct Misc {
 		static double sigmoidConst;
 		static double sigmoidConstRev;
-		static double coolingPowerPerNode;
+		//static double coolingPowerPerNode;
 	};
 };
 

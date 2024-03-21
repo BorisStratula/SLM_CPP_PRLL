@@ -18,6 +18,7 @@ TimeFlow::TimeFlow() {
 	stopSimulation = false;
 	timerGlobal.start();
 	timerCalculation.start();
+	std::cout << "simulation start time = " << Config::Time::start << "s, end time = " << Config::Time::end << "s, time step = " << Config::Time::step << "s" << std::endl;
 }
 
 TimeFlow::~TimeFlow() {

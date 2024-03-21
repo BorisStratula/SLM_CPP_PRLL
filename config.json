@@ -4,11 +4,11 @@
   },
   "path to project": "null",
   "geometry": {
-	  "size": {
-		  "x": 400e-6,
-		  "y": 20e-6,
-		  "z": 20e-6
-	  },
+		"elems": {
+			"x": 60,
+			"y": 60,
+			"z": 20
+		},
 	  "step": {
 		  "x": 20e-6,
 		  "y": 20e-6,
@@ -21,7 +21,7 @@
   },
   "time": {
 	  "start": 0,
-	  "step": 1e-10,
+	  "step": 1e-7,
 	  "iterations": 100000
   },
   "logging": {
@@ -60,17 +60,17 @@
   },
   "laser": {
 	"loc": {
-		"relative x": 0.1,
-		"relative y": 0.1,
-		"relative z": 1.0
+		"x": 0e-4,
+		"y": 19e-4,
+		"z": 0
 	},
 	"vel": {
-		"x": 0,
+		"x": 0.5,
 		"y": 0,
 		"z": 0
 	},
 	"radius": 40e-6,
-	"power": 6000,
-	"state": false
+	"power": 60,
+	"state": true
   }
 }

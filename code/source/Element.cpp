@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "../../lib/include/IntVec3.h"
 #include "../include/Element.h"
 #include "../include/Config.h"
@@ -31,7 +33,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Ne
 	timesMelted = 0;
 	wasProcessed = false;
 	T = Config::Temperature::initial;
-	if (ID == 0) T = 1700.0;
+	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
 	H = HofT();
 	HFlow = 0.0;
@@ -122,7 +124,7 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	double q = laserFlux(LASER);
 	qDebug = q;
 	double M = radiantFlux();
-	//M += wallFlux(neighbours);
+	M += wallFlux(neighbours);
 	MDebug = M;
 	double FExt = q - M;
 	double enthalpyFlow = (theta + FExt) * Config::Time::step;
@@ -134,12 +136,6 @@ double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, 
 }
 
 double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	//double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	//if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.x);
-	//else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.y);
-	//else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.z);
-	//return t;
-
 	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
 	if      (AXIS == 1) t = t * 2.0 / (localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
 	else if (AXIS == 2) t = t * 2.0 / (localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
@@ -148,12 +144,6 @@ double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, cons
 }
 
 double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	//double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	//if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.x);
-	//else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.y);
-	//else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.z);
-	//return t;
-
 	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
 	if      (AXIS == 1) t = t * 2.0 / (localConfig.geometry.step.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x);
 	else if (AXIS == 2) t = t * 2.0 / (localConfig.geometry.step.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y);
@@ -184,6 +174,34 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 }
 
 void Elem::vecInit(Elem* elems) {
+	IntVec3 centralElemIndex = Config::Geometry::resolution.dot(Vec3(0.5, 0.5, 1.0));
+	std::vector<std::vector<int32_t>> refine = {
+		{5, 10},
+		{5, 10},
+		{5, 10}
+	};
+	Vec3 elemMult = Vec3(1.0, 1.0, 1.0);
+	Vec3 nodeMult = Vec3(1.0, 1.0, 1.0);
+	for (size_t i = 0; i < refine[0].size(); i++) {
+		if (index.x <= (centralElemIndex.x - refine[0][i])) elemMult.x *= 2.0;
+		if (index.x < (centralElemIndex.x - refine[0][i])) nodeMult.x *= 2.0;
+		if (index.x > (centralElemIndex.x + refine[0][i])) elemMult.x *= 2.0;
+		if (index.x >= (centralElemIndex.x + refine[0][i])) nodeMult.x *= 2.0;
+	}
+	for (size_t i = 0; i < refine[1].size(); i++) {
+		if (index.y <= (centralElemIndex.y - refine[1][i])) elemMult.y *= 2.0;
+		if (index.y < (centralElemIndex.y - refine[1][i])) nodeMult.y *= 2.0;
+		if (index.y > (centralElemIndex.y + refine[1][i])) elemMult.y *= 2.0;
+		if (index.y >= (centralElemIndex.y + refine[1][i])) nodeMult.y *= 2.0;
+	}
+	for (size_t i = 0; i < refine[2].size(); i++) {
+		if (index.z <= (centralElemIndex.z - refine[2][i])) elemMult.z *= 2.0;
+		if (index.z < (centralElemIndex.z - refine[2][i])) nodeMult.z *= 2.0;
+		if (index.z > (centralElemIndex.z + refine[2][i])) elemMult.z *= 2.0;
+		if (index.z >= (centralElemIndex.z + refine[2][i])) nodeMult.z *= 2.0;
+	}
+	elemScaleVec = elemScaleVec.dot(elemMult);
+	nodeScaleVec = nodeScaleVec.dot(nodeMult);
 	//if (index.x > 10)  elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
 	//if (index.x >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(2.0, 1.0, 1.0));
 	//if (index.y > 10)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
