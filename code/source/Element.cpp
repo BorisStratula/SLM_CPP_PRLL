@@ -259,7 +259,7 @@ void Elem::applyMirror() {
 void Elem::chechState() {
 	if (T > Config::Temperature::melting) {
 		if (state == 2 or state == 0) {
-			if (state == 0) HofT();
+			if (state == 0) H = HofT();
 			state = 1;
 			timesMelted += 1;
 		}

@@ -75,7 +75,7 @@
 		"z": 0
 	},
 	"radius": 40e-6,
-	"power": 60,
+	"power": 50,
 	"state": true
   }
 }
