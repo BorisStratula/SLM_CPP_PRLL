@@ -103,9 +103,9 @@ void Mesh::createMesh() {
 	std::cout << "mesh created, " << timer.formatElapsed() << " elems = " << elemsCount << " nodes = " << nodesCount << std::endl;
 	std::cout << "mesh resolution " << resolution.x << "x" << resolution.y << "x" << resolution.z << " elems" << std::endl;
 	std::cout << "geometry dimentions " 
-		<< Config::Geometry::size.x * 1000.0 << "mm x-axis, " 
-		<< Config::Geometry::size.y * 1000.0 << "mm y-axis, "
-		<< Config::Geometry::size.z * 1000.0 << "mm z-axis" << std::endl;
+		<< nodes[nodesCount - 1].vec.x * 1000.0 << "mm x-axis, " 
+		<< nodes[nodesCount - 1].vec.y * 1000.0 << "mm y-axis, "
+		<< nodes[nodesCount - 1].vec.z * 1000.0 << "mm z-axis" << std::endl;
 }
 
 void Mesh::sectorPreprocessor(MeshSector* meshSectors, Laser* laser) {
@@ -222,10 +222,11 @@ uint32_t Mesh::isElemInsideSector(const Elem* elem, const MeshSector* meshSector
 }
 
 IntVec3 Mesh::returnResolution() const {
-	int32_t xRes = (uint32_t)round(Config::Geometry::size.x / Config::Geometry::step.x);
-	int32_t yRes = (uint32_t)round(Config::Geometry::size.y / Config::Geometry::step.y);
-	int32_t zRes = (uint32_t)round(Config::Geometry::size.z / Config::Geometry::step.z);
-	return IntVec3(xRes, yRes, zRes);
+	//int32_t xRes = (uint32_t)round(Config::Geometry::size.x / Config::Geometry::step.x);
+	//int32_t yRes = (uint32_t)round(Config::Geometry::size.y / Config::Geometry::step.y);
+	//int32_t zRes = (uint32_t)round(Config::Geometry::size.z / Config::Geometry::step.z);
+	//return IntVec3(xRes, yRes, zRes);
+	return Config::Geometry::resolution;
 }
 
 double Mesh::overhed(MeshSector* meshSectors) {

@@ -85,6 +85,7 @@ public:
 	double radiantFlux() const;
 	double wallFlux(const Neighbours& NEIGHBOURS) const;
 	void vecInit(Elem* elems);
+	void scaleVecCalculate();
 	void fetchConfig();
 	void applyMirror();
 	void chechState();

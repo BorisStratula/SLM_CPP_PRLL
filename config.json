@@ -1,35 +1,40 @@
 {
   "processes": {
-	  "in parallel": 12
+	  "in parallel": 8
   },
   "path to project": "null",
   "geometry": {
-	  "size": {
-		  "x": 400e-6,
-		  "y": 400e-6,
-		  "z": 200e-6
-	  },
-	  "step": {
-		  "x": 20e-6,
-		  "y": 20e-6,
-		  "z": 20e-6
-	  },
-		"powder thickness": 100e-6,
+		"elems": {
+			"x": 60,
+			"y": 60,
+			"z": 40
+		},
+		"step": {
+			"x": 10e-6,
+			"y": 10e-6,
+			"z": 10e-6
+		},
+		"coarsen after": {
+			"x": [ 14, 18, 22 ],
+			"y": [ 14, 18, 22 ],
+			"z": [ 14, 18, 22 ]
+		},
+		"powder thickness": 60e-6,
 		"buffer zone, elems": 1,
-		"mirror x-axis": true,
-		"mirror y-axis": true
+		"mirror x-axis": false,
+		"mirror y-axis": false
   },
   "time": {
 	  "start": 0,
-	  "step": 1e-10,
+	  "step": 1e-7,
 	  "iterations": 100000
   },
   "logging": {
 	  "log entries": 100
   },
   "temperatures": {
-	  "air": 1000,
-	  "initial": 1000,
+	  "air": 300,
+	  "initial": 300,
 	  "melting": 1923,
 	  "cut off": 2200
   },
@@ -60,17 +65,17 @@
   },
   "laser": {
 	"loc": {
-		"relative x": 0.1,
-		"relative y": 0.1,
-		"relative z": 1.0
+		"x": 1e-4,
+		"y": 1e-3,
+		"z": 0
 	},
 	"vel": {
-		"x": 0,
+		"x": 0.5,
 		"y": 0,
 		"z": 0
 	},
 	"radius": 40e-6,
-	"power": 6000,
+	"power": 50,
 	"state": true
   }
 }

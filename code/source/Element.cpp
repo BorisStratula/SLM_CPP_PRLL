@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "../../lib/include/IntVec3.h"
 #include "../include/Element.h"
 #include "../include/Config.h"
@@ -31,6 +33,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Ne
 	timesMelted = 0;
 	wasProcessed = false;
 	T = Config::Temperature::initial;
+	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
 	H = HofT();
 	HFlow = 0.0;
@@ -121,7 +124,7 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	double q = laserFlux(LASER);
 	qDebug = q;
 	double M = radiantFlux();
-	//M += wallFlux(neighbours);
+	M += wallFlux(neighbours);
 	MDebug = M;
 	double FExt = q - M;
 	double enthalpyFlow = (theta + FExt) * Config::Time::step;
@@ -130,43 +133,22 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 
 double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const {
 	return thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS);
-	
-	//double fracTop = (thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS)) * 2.0;
-	//double fracBot;
-	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
-	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
-	//else                fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
-	//return fracTop / fracBot;
 }
 
 double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.x);
-	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.y);
-	else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.stepCoeff.z);
+	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
+	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
+	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
 	return t;
-
-	//double fracTop = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	//double fracBot;
-	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x) * 2.0;
-	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y) * 2.0;
-	//else                fracBot = (MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z) * 2.0;
-	//return fracTop / fracBot;
 }
 
 double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	if      (AXIS == 1) t = t * (localConfig.geometry.stepCoeff.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.x);
-	else if (AXIS == 2) t = t * (localConfig.geometry.stepCoeff.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.y);
-	else                t = t * (localConfig.geometry.stepCoeff.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.stepCoeff.z);
+	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x);
+	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y);
+	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z);
 	return t;
-
-	//double fracTop = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	//double fracBot;
-	//if      (AXIS == 1) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x) * 2.0;
-	//else if (AXIS == 2) fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y) * 2.0;
-	//else                fracBot = (MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z) * 2.0;
-	//return fracTop / fracBot;
 }
 
 double Elem::laserFlux(const Laser* LASER) {
@@ -183,26 +165,46 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 	if (onSurface.sumOfComponents() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
-		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
-		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
-		if  (NEIGHBOURS.zPlus == -1) totalFlux += localConfig.geometry.surfaceArea.z * 0.022 * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
+		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
+		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if (NEIGHBOURS.zPlus == -1)  totalFlux += localConfig.geometry.surfaceArea.z * 10.0 * (T - Config::Temperature::air);// *localConfig.geometry.stepRev.z;
 		return totalFlux;
 	}
 }
 
 void Elem::vecInit(Elem* elems) {
-	if (index.x > 10)  elemScaleVec = elemScaleVec.dot(Vec3(2.0, 1.0, 1.0));
-	if (index.x >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(2.0, 1.0, 1.0));
-	if (index.y > 10)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 2.0, 1.0));
-	if (index.y >= 10) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 2.0, 1.0));
-	//if (index.z < 10 - 5)  elemScaleVec = elemScaleVec.dot(Vec3(1.0, 1.0, 2.0));
-	//if (index.z <= 10 - 5) nodeScaleVec = nodeScaleVec.dot(Vec3(1.0, 1.0, 2.0));
-
+	scaleVecCalculate();
 	if      (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 1.0, 0.0)).dot(elemScaleVec);
 	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 0.0, 1.0)).dot(elemScaleVec);
 	else vec = Vec3(0.0, 0.0, 0.0);
+}
+
+void Elem::scaleVecCalculate() {
+	IntVec3 centralElemIndex = Config::Geometry::resolution.dot(Vec3(0.5, 0.5, 1.0));
+	Vec3 elemMult = Vec3(1.0, 1.0, 1.0);
+	Vec3 nodeMult = Vec3(1.0, 1.0, 1.0);
+	for (size_t i = 0; i < Config::Geometry::coarsen[0].size(); i++) {
+		if (index.x <= (centralElemIndex.x - Config::Geometry::coarsen[0][i])) elemMult.x *= 2.0;
+		if (index.x < (centralElemIndex.x - Config::Geometry::coarsen[0][i])) nodeMult.x *= 2.0;
+		if (index.x > (centralElemIndex.x + Config::Geometry::coarsen[0][i])) elemMult.x *= 2.0;
+		if (index.x >= (centralElemIndex.x + Config::Geometry::coarsen[0][i])) nodeMult.x *= 2.0;
+	}
+	for (size_t i = 0; i < Config::Geometry::coarsen[1].size(); i++) {
+		if (index.y <= (centralElemIndex.y - Config::Geometry::coarsen[1][i])) elemMult.y *= 2.0;
+		if (index.y < (centralElemIndex.y - Config::Geometry::coarsen[1][i])) nodeMult.y *= 2.0;
+		if (index.y > (centralElemIndex.y + Config::Geometry::coarsen[1][i])) elemMult.y *= 2.0;
+		if (index.y >= (centralElemIndex.y + Config::Geometry::coarsen[1][i])) nodeMult.y *= 2.0;
+	}
+	for (size_t i = 0; i < Config::Geometry::coarsen[2].size(); i++) {
+		if (index.z <= (centralElemIndex.z - Config::Geometry::coarsen[2][i])) elemMult.z *= 2.0;
+		if (index.z < (centralElemIndex.z - Config::Geometry::coarsen[2][i])) nodeMult.z *= 2.0;
+		if (index.z > (centralElemIndex.z + Config::Geometry::coarsen[2][i])) elemMult.z *= 2.0;
+		if (index.z >= (centralElemIndex.z + Config::Geometry::coarsen[2][i])) nodeMult.z *= 2.0;
+	}
+	elemScaleVec = elemScaleVec.dot(elemMult);
+	nodeScaleVec = nodeScaleVec.dot(nodeMult);
 }
 
 void Elem::fetchConfig() {
@@ -257,7 +259,7 @@ void Elem::applyMirror() {
 void Elem::chechState() {
 	if (T > Config::Temperature::melting) {
 		if (state == 2 or state == 0) {
-			if (state == 0) HofT();
+			if (state == 0) H = HofT();
 			state = 1;
 			timesMelted += 1;
 		}
