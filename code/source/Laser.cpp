@@ -23,10 +23,10 @@ void Laser::advance() {
 	//vec = vec + velScaled;
 	
 	// z-shaped pattern
-	if (vec.x < 0.002) vec = vec + velScaled;
+	if (vec.x < Config::Laser::vec.y * 1.3) vec = vec + velScaled;
 	else {
 		vec.x = Config::Laser::vec.x;
-		vec.y = vec.y + 2.5 * Config::Laser::radius;
+		vec.y = vec.y + 2.0 * Config::Laser::radius;
 	}
 	
 	

@@ -137,17 +137,17 @@ double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, 
 
 double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	if      (AXIS == 1) t = t * 2.0 / (localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
-	else if (AXIS == 2) t = t * 2.0 / (localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
-	else                t = t * 2.0 / (localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
+	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
+	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
+	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
 	return t;
 }
 
 double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	if      (AXIS == 1) t = t * 2.0 / (localConfig.geometry.step.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x);
-	else if (AXIS == 2) t = t * 2.0 / (localConfig.geometry.step.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y);
-	else                t = t * 2.0 / (localConfig.geometry.step.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z);
+	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x);
+	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y);
+	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z);
 	return t;
 }
 
@@ -165,10 +165,10 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 	if (onSurface.sumOfComponents() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
-		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
-		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z * k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
-		if  (NEIGHBOURS.zPlus == -1) totalFlux += localConfig.geometry.surfaceArea.z * 0.022 * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
+		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
+		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if (NEIGHBOURS.zPlus == -1)  totalFlux += localConfig.geometry.surfaceArea.z * 10.0 * (T - Config::Temperature::air);// *localConfig.geometry.stepRev.z;
 		return totalFlux;
 	}
 }
