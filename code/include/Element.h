@@ -32,6 +32,7 @@ public:
 	double HFlow = 0.0;
 	double qDebug = 0.0;
 	double MDebug = 0.0;
+	double volume = 0.0;
 	MeshSector* meshSectorPtr = nullptr;
 	int32_t persistentElemID = 0;
 	int32_t persistentSectorID = 0;

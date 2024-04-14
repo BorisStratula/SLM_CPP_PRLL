@@ -30,7 +30,7 @@
 	  "iterations": 100000
   },
   "logging": {
-	  "log entries": 10
+	  "log entries": 20
   },
   "temperatures": {
 	  "air": 300,
@@ -83,6 +83,6 @@
 		"absorbtion": 0.8,
 		"state": true,
 		"tracks": 2,
-		"layers": 1
+		"layers": 2
   }
 }

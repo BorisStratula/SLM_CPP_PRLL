@@ -38,6 +38,12 @@ int main()
 			bodyData.advance(meshSectors);
 			dataWriter.advance(timeFlow, bodyData);
 		}
+		if (laser.needForNewLayer) {
+			for (size_t i = 0; i < Config::Processes::count; i++) {
+				dataContainers[i].addNewLayerOfPowder();
+			}
+			laser.needForNewLayer = false;
+		}
 	}
 
 	if (processors) {

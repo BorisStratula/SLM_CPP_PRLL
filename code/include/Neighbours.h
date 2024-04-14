@@ -20,13 +20,15 @@ public:
 	Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION);
 	~Neighbours();
 
+	void truncate();
+
+private:
 	int32_t xMinusID(const IntVec3& INDEX_VEC, uint32_t ID) const;
 	int32_t xPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
 	int32_t yMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
 	int32_t yPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
 	int32_t zMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
 	int32_t zPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
-	void truncate();
 };
 
 #endif // !NEIGHBOURS_H

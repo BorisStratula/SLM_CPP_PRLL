@@ -39,6 +39,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Ne
 	HFlow = 0.0;
 	qDebug = 0.0;
 	MDebug = 0.0;
+	volume = 0.0;
 	meshSectorPtr = nullptr;
 	persistentElemID = -1;
 	persistentSectorID = -1;

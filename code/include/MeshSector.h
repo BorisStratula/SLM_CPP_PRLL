@@ -22,6 +22,7 @@ public:
 	int32_t* lookUpTable;
 	Laser* laserPtr;
 	MeshSector* meshSectorsPtr;
+	uint32_t powderElemsCount;
 
 	MeshSector();
 	~MeshSector();
@@ -33,6 +34,7 @@ public:
 	void neighboursFix(Elem* elem);
 	void checkIfElemIsOnBorder(Elem* elem);
 	void syncBorders(const MeshSector* meshSectors);
+	void addNewLayerOfPowder();
 
 
 

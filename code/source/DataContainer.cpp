@@ -33,11 +33,19 @@ void DataContainer::init(size_t _ID, MeshSector* meshSectors, MeshSector* allMes
 }
 
 void DataContainer::advance() {
+	//if (laserPtr->needForNewLayer > 0) {
+	//	laserPtr->needForNewLayer -= 1;
+	//	meshSectorPtr->addNewLayer();
+	//}
 	if (timeFlowPtr) timeFlowPtr->advance();
 	meshSectorPtr->advance();
 	if (ID == (size_t)Config::Processes::count - 1) laserPtr->advance();
 	stepsInIsolation++;
 	if (stepsInIsolation == maxStepsInIsolation) timeToSync = true;
+}
+
+void DataContainer::addNewLayerOfPowder() {
+	meshSectorPtr->addNewLayerOfPowder();
 }
 
 void DataContainer::sync(MeshSector* meshSectors) {

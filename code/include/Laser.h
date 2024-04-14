@@ -18,7 +18,7 @@ public:
 	double turnaroundLoc;
 	double sideStep;
 	bool state;
-	uint32_t needForNewLayer;
+	bool needForNewLayer;
 
 	Laser();
 	~Laser();

@@ -15,7 +15,7 @@ Laser::Laser() {
 	specificPower = power / M_PI / pow(radius, 2.0);
 	turnaroundLoc = Config::Laser::goUntill;
 	sideStep = Config::Laser::sideStep;
-	needForNewLayer = 0;
+	needForNewLayer = false;
 }
 
 Laser::~Laser() {
@@ -29,10 +29,12 @@ void Laser::advance() {
 		vec.x = Config::Laser::vec.x;
 		vec.y = vec.y + sideStep;
 		position.x++;
-		//if (position.x >= Config::Laser::tracks) {
-		//	vec.y = Config::Laser::vec.y;
-		//	needForNewLayer = Config::Processes::inParallel;
-		//}
+		if (position.x >= (int32_t)Config::Laser::tracks) {
+			vec.y = Config::Laser::vec.y;
+			needForNewLayer = true;
+			position.x = 0;
+			position.y++;
+		}
 	}
 }
 

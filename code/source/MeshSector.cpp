@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cmath>
 
 #include "../../lib/include/IntVec3.h"
 
@@ -22,6 +23,7 @@ MeshSector::MeshSector() {
 	lookUpTable = nullptr;
 	laserPtr = nullptr;
 	meshSectorsPtr = nullptr;
+	powderElemsCount = 0;
 }
 
 MeshSector::~MeshSector() {
@@ -46,6 +48,7 @@ void MeshSector::init(const IntVec3& ANCHOR, const IntVec3& RESOLUTION) {
 	elemsCountBuff = resolutionBuff.x * resolutionBuff.y * resolutionBuff.z;
 	elems = new Elem[elemsCountBuff]();
 	volatileElemsIDs = new uint32_t[elemsCountBuff - elemsCount];
+	powderElemsCount = (uint32_t)std::round(Config::Geometry::powderThickness / Config::Geometry::step.z);
 	count++;
 }
 
@@ -90,6 +93,7 @@ void MeshSector::copyThisElem(const Elem* elem) {
 	elems[vacantElemID].HFlow = elem->HFlow;
 	elems[vacantElemID].qDebug = elem->qDebug;
 	elems[vacantElemID].MDebug = elem->MDebug;
+	elems[vacantElemID].volume = elem->volume;
 	elems[vacantElemID].meshSectorPtr = this;
 	elems[vacantElemID].persistentElemID = elem->persistentElemID;
 	elems[vacantElemID].persistentSectorID = elem->persistentSectorID;
@@ -134,5 +138,34 @@ void MeshSector::syncBorders(const MeshSector* meshSectors) {
 		elems[ID].HFlow = meshSectors[persistentSectorID].elems[persistentElemID].HFlow;
 		elems[ID].qDebug = meshSectors[persistentSectorID].elems[persistentElemID].qDebug;
 		elems[ID].MDebug = meshSectors[persistentSectorID].elems[persistentElemID].MDebug;
+	}
+}
+
+void MeshSector::addNewLayerOfPowder() {
+	for (size_t powderLayer = 0; powderLayer < powderElemsCount; powderLayer++) {
+		for (size_t ID = 0; ID < vacantElemID; ID++) {
+			int32_t zPlus = elems[ID].neighbours.zPlus;
+			if (zPlus > 0) {
+				zPlus = lookUpTable[zPlus];
+				elems[ID].state = elems[zPlus].state;
+				elems[ID].timesMelted = elems[zPlus].timesMelted;
+				elems[ID].T = elems[zPlus].T;
+				elems[ID].k = elems[zPlus].k;
+				elems[ID].H = elems[zPlus].H * elems[ID].volume / elems[zPlus].volume;
+				elems[ID].HFlow = elems[zPlus].HFlow;
+				elems[ID].qDebug = elems[zPlus].qDebug;
+				elems[ID].MDebug = elems[zPlus].MDebug;
+			}
+			else {
+				elems[ID].state = 0;
+				elems[ID].timesMelted = 0;
+				elems[ID].T = Config::Temperature::initial;
+				elems[ID].k = elems[ID].thermalConductivity();
+				elems[ID].H = elems[ID].HofT();
+				elems[ID].HFlow = 0;
+				elems[ID].qDebug = 0;
+				elems[ID].MDebug = 0;
+			}
+		}
 	}
 }

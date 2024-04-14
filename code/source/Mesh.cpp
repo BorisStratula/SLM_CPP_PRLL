@@ -52,6 +52,8 @@ void Mesh::createElement(uint32_t elemID, const IntVec3& INDEX_VEC, const Neighb
 			nodeID = findNodeForElement(nodePos, newElem->vec, newElem->nodeScaleVec, NEIGHBOURS);
 			newElem->vertices[nodePos] = nodeID;
 		}
+		Vec3 size = Vec3(nodes[newElem->vertices[6]].vec - nodes[newElem->vertices[0]].vec);
+		newElem->volume = size.x * size.y * size.z;
 	}
 }
 
