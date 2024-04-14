@@ -43,28 +43,28 @@ public:
 			Vec3 surfaceArea;
 		} geometry;
 		struct Mass {
-			double powder;
-			double liquid;
-			double solid;
+			double powder = 0.0;
+			double liquid = 0.0;
+			double solid = 0.0;
 		} mass;
 		struct Energy {
 			struct Powder {
-				double mc;
-				double mcRev;
+				double mc = 0.0;
+				double mcRev = 0.0;
 			} powder;
 			struct Liquid {
-				double mc;
-				double mcRev;
+				double mc = 0.0;
+				double mcRev = 0.0;
 			} liquid;
 			struct Solid {
-				double mc;
-				double mcRev;
+				double mc = 0.0;
+				double mcRev = 0.0;
 			} solid;
 			struct Enthalpy {
-				double minusRegular;
-				double plusRegular;
-				double minusPowder;
-				double plusPowder;
+				double minusRegular = 0.0;
+				double plusRegular = 0.0;
+				double minusPowder = 0.0;
+				double plusPowder = 0.0;
 			} enthalpy;
 		} energy;
 	} localConfig;
@@ -78,9 +78,10 @@ public:
 	double TofH() const;
 	double HofT() const;
 	double enthalpyFlow(const Laser* LASER);
-	double thetaI(int32_t forwardID, int32_t backwardID, const uint32_t axis, const MeshSector* const MESH_SECTOR) const;
-	double thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t axis) const;
-	double thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t axis) const;
+	double thetaAlongAxis(const int32_t FORWARD_ID, const int32_t BACKWARD_ID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const;
+	double thetaF(const int32_t FORWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
+	double thetaB(const int32_t BACKWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
+	double thetaIncoming(const int32_t EXTERNAL_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
 	double laserFlux(const Laser* LASER);
 	double radiantFlux() const;
 	double wallFlux(const Neighbours& NEIGHBOURS) const;

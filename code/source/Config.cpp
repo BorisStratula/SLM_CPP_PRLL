@@ -14,7 +14,7 @@ void Config::readConfig() {
 		std::string externalPath = "../config.json";
 		std::ifstream localFile(localPath);
 		std::ifstream externalFile(externalPath);
-		std::string configPath = "";
+		configPath = "";
 		if (localFile) {
 			configPath = localPath;
 			printf("Local config file found\n");
@@ -27,13 +27,14 @@ void Config::readConfig() {
 			printf("No config file\n");
 			exit(3);
 		}
+		printf("~~~~~~\n");
 		std::ifstream configFile(configPath);
 		json processedFile{ json::parse(configFile) };
 		//
 
 
-		Processes::inParallel = uint32_t{ processedFile["processes"]["in parallel"] };
-		if (Processes::inParallel == 0) {
+		Processes::count = uint32_t{ processedFile["processes"]["in parallel"] };
+		if (Processes::count == 0) {
 			printf("0 processes, computation is not possible\n");
 			exit(1);
 		}
@@ -139,15 +140,13 @@ void Config::readConfig() {
 			double{ processedFile["laser"]["vel"]["z"] }
 		);
 		Laser::radius = double{ processedFile["laser"]["radius"] };
-		Laser::power = double{ processedFile["laser"]["power"] };
+		Laser::absorbtion = double{ processedFile["laser"]["absorbtion"] };
+		Laser::power = Laser::absorbtion * double{ processedFile["laser"]["power"] };
+		Laser::goUntill = double{ processedFile["laser"]["go untill"]["x"] };
+		Laser::sideStep = Laser::radius * double{ processedFile["laser"]["side step multiplier"] };
 		Laser::state = bool{ processedFile["laser"]["state"] };
-
-
-		//uint32_t xRes = (uint32_t)round(Geometry::size.x / Geometry::step.x);
-		//uint32_t yRes = (uint32_t)round(Geometry::size.y / Geometry::step.y);
-		//uint32_t zRes = (uint32_t)round(Geometry::size.z / Geometry::step.z);
-		//uint32_t coolingNodes = xRes * yRes + 2 * xRes * zRes + 2 * yRes * zRes;
-		//Misc::coolingPowerPerNode = Laser::power / coolingNodes;
+		Laser::tracks = uint32_t{ processedFile["laser"]["tracks"] };
+		Laser::layers = uint32_t{ processedFile["laser"]["layers"] };
 	}
 	catch (...) {
 		std::cout << "Error while parsing config file" << std::endl;
@@ -156,7 +155,8 @@ void Config::readConfig() {
 }
 
 
-uint32_t    Config::Processes::inParallel = 0;
+uint32_t    Config::Processes::count = 0;
+std::string Config::configPath = "null";
 std::string Config::Directory::project = "null";
 //Vec3        Config::Geometry::size = Vec3();
 IntVec3     Config::Geometry::resolution = IntVec3();
@@ -210,7 +210,11 @@ Vec3        Config::Laser::vec = Vec3();
 Vec3        Config::Laser::vel = Vec3();
 double      Config::Laser::radius = 0.0;
 double      Config::Laser::power = 0.0;
+double		Config::Laser::absorbtion = 0.0;
+double		Config::Laser::goUntill = 0.0;
+double		Config::Laser::sideStep = 0.0;
 bool        Config::Laser::state = false;
+uint32_t	Config::Laser::tracks = 0;
+uint32_t	Config::Laser::layers = 0;
 double      Config::Misc::sigmoidConst = 0.0;
 double      Config::Misc::sigmoidConstRev = 0.0;
-//double      Config::Misc::coolingPowerPerNode = 0.0;

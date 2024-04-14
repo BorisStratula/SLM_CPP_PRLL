@@ -14,6 +14,7 @@ public:
 	~DataWriter() = default;
 
 	void prepareDir() const;
+	void copyConfig() const;
 	void advance(TimeFlow& timeFlow, const BodyData& BODY_DATA) const;
 	void writeSolutionFile(const std::string& FILE_NAME, const BodyData& BODY_DATA, bool printTime) const;
 	void combineSolutionFiles(uint32_t iteration, uint32_t totalIterations) const;

@@ -5,9 +5,9 @@
   "path to project": "null",
   "geometry": {
 		"elems": {
-			"x": 60,
-			"y": 60,
-			"z": 40
+			"x": 40,
+			"y": 40,
+			"z": 20
 		},
 		"step": {
 			"x": 10e-6,
@@ -30,7 +30,7 @@
 	  "iterations": 100000
   },
   "logging": {
-	  "log entries": 100
+	  "log entries": 10
   },
   "temperatures": {
 	  "air": 300,
@@ -64,18 +64,25 @@
 	  "emmisivity": 1
   },
   "laser": {
-	"loc": {
-		"x": 1e-4,
-		"y": 1e-3,
-		"z": 0
-	},
-	"vel": {
-		"x": 0.5,
-		"y": 0,
-		"z": 0
-	},
-	"radius": 40e-6,
-	"power": 50,
-	"state": true
+		"loc": {
+			"x": 0.25,
+			"y": 0.5,
+			"z": 0
+		},
+		"go untill": {
+			"x": 0.75
+		},
+		"vel": {
+			"x": 0.5,
+			"y": 0,
+			"z": 0
+		},
+		"radius": 40e-6,
+		"side step multiplier": 2,
+		"power": 50,
+		"absorbtion": 0.8,
+		"state": true,
+		"tracks": 2,
+		"layers": 1
   }
 }

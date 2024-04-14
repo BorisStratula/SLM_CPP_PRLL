@@ -9,9 +9,10 @@
 class Config {
 public:
 	static void readConfig();
+	static std::string configPath;
 
 	struct Processes {
-		static uint32_t inParallel; // 0 - no processes created, 1 and more - amount of manually created processes
+		static uint32_t count; // 0 - no processes created, 1 and more - amount of manually created processes
 	};
 
 	struct Directory {
@@ -102,13 +103,17 @@ public:
 		static Vec3 vel;
 		static double radius;
 		static double power;
+		static double absorbtion;
+		static double goUntill;
+		static double sideStep;
 		static bool state;
+		static uint32_t tracks;
+		static uint32_t layers;
 	};
 
 	struct Misc {
 		static double sigmoidConst;
 		static double sigmoidConstRev;
-		//static double coolingPowerPerNode;
 	};
 };
 

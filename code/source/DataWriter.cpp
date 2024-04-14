@@ -12,6 +12,7 @@ DataWriter::DataWriter(TimeFlow& timeFlow, const BodyData& BODY_DATA) {
     }
     solutionDir = projectDir + "/solution";
     prepareDir();
+    copyConfig();
     advance(timeFlow, BODY_DATA);
 }
 
@@ -42,6 +43,10 @@ void DataWriter::prepareDir() const {
         std::cout << "Create project folder first\n";
         std::exit(4);
     }
+}
+
+void DataWriter::copyConfig() const {
+    std::filesystem::copy(Config::configPath, solutionDir);
 }
 
 std::string DataWriter::addPrefixZeroes(uint32_t value, uint32_t maxValue) const {
@@ -76,7 +81,7 @@ void DataWriter::writeSolutionFile(const std::string& FILE_NAME, const BodyData&
     writer.add_cell_scalar_field("sector", BODY_DATA.sector);
 
     writer.write_volume_mesh(solutionDir + FILE_NAME, dim, cell_size, BODY_DATA.nodalCoords, BODY_DATA.elemVertices);
-    if (printTime) std::cout << "write Solution File " + timer.formatElapsed() + '\n';
+    if (printTime) std::cout << "write Solution File " + timer.formatElapsed() + '\n' + "~~~~~~\n";
 }
 
 void DataWriter::combineSolutionFiles(uint32_t iteration, uint32_t totalIterations) const {

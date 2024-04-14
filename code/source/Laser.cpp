@@ -8,10 +8,14 @@ Laser::Laser() {
 	vec = Config::Laser::vec;
 	vel = Config::Laser::vel;
 	velScaled = vel.multiply(Config::Time::step);
+	position = IntVec3();
 	radius = Config::Laser::radius;
 	power = Config::Laser::power;
 	state = Config::Laser::state;
 	specificPower = power / M_PI / pow(radius, 2.0);
+	turnaroundLoc = Config::Laser::goUntill;
+	sideStep = Config::Laser::sideStep;
+	needForNewLayer = 0;
 }
 
 Laser::~Laser() {
@@ -19,29 +23,28 @@ Laser::~Laser() {
 }
 
 void Laser::advance() {
-	// general
-	//vec = vec + velScaled;
-	
 	// z-shaped pattern
-	if (vec.x < Config::Laser::vec.y * 1.3) vec = vec + velScaled;
+	if (vec.x < turnaroundLoc) vec = vec + velScaled;
 	else {
 		vec.x = Config::Laser::vec.x;
-		vec.y = vec.y + 2.0 * Config::Laser::radius;
+		vec.y = vec.y + sideStep;
+		position.x++;
+		//if (position.x >= Config::Laser::tracks) {
+		//	vec.y = Config::Laser::vec.y;
+		//	needForNewLayer = Config::Processes::inParallel;
+		//}
 	}
-	
-	
-	// s-shaped pattern
-	//vec = vec + velScaled;
-	//if (vec.x <= 0) {
-	//	vec = vec + Vec3(0.0, Laser::radius, 0.0);
-	//	velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
-	//	vec = vec + velScaled.multiply(2.0);
-	//}
-	//if (vec.x > 6e-4) {
-	//	vec = vec + Vec3(0.0, Laser::radius, 0.0);
-	//	velScaled = velScaled.dot(Vec3(-1.0, 1.0, 1.0));
-	//	vec = vec + velScaled.multiply(2.0);
-	//}
+}
+
+void Laser::scaleVectorToGeometrySize(const Vec3& LAST_NODE_VEC) {
+	vec = vec.dot(LAST_NODE_VEC);
+	moveVectorBasedOnTracksCount();
+	Config::Laser::vec = vec;
+	turnaroundLoc *= LAST_NODE_VEC.x;
+} 
+
+void Laser::moveVectorBasedOnTracksCount() {
+	vec.y = vec.y - (double)(Config::Laser::tracks - 1) * Config::Laser::sideStep * 0.5;
 }
 
 double Laser::heatToElem(Elem* const ELEM) const {

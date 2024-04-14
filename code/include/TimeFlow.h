@@ -5,6 +5,7 @@
 #include <string>
 #include "../../lib/include/Timer.h"
 
+class Laser;
 
 class TimeFlow {
 public:
@@ -23,12 +24,13 @@ public:
 	Timer timerGlobal;
 	Timer timerCalculation;
 
-	TimeFlow();
+	TimeFlow(const Laser& LASER);
 	~TimeFlow();
 
 	void advance();
 	void removeFlag();
 	std::string info();
+	double calculateEndTime(const Laser& LASER) const;
 };
 
 #endif // !TIMEFLOW_H

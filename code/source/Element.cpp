@@ -115,9 +115,9 @@ double Elem::HofT() const {
 double Elem::enthalpyFlow(const Laser* LASER) {
 	wasProcessed = false;
 	Vec3 thetaVec = Vec3(
-		thetaI(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr),
-		thetaI(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
-		thetaI(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr)
+		thetaAlongAxis(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr),
+		thetaAlongAxis(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
+		thetaAlongAxis(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr)
 	);
 	thetaVec = thetaVec.dot(localConfig.geometry.surfaceArea);
 	double theta = thetaVec.x + thetaVec.y + thetaVec.z;
@@ -131,24 +131,66 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	return enthalpyFlow;
 }
 
-double Elem::thetaI(int32_t forwardID, int32_t backwardID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const {
-	return thetaF(forwardID, MESH_SECTOR, AXIS) - thetaB(backwardID, MESH_SECTOR, AXIS);
+double Elem::thetaAlongAxis(const int32_t FORWARD_ID, const int32_t BACKWARD_ID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const {
+	//return thetaF(FORWARD_ID, MESH_SECTOR, AXIS) - thetaB(BACKWARD_ID, MESH_SECTOR, AXIS); // old way of calculating flow
+	return thetaIncoming(FORWARD_ID, MESH_SECTOR, AXIS) + thetaIncoming(BACKWARD_ID, MESH_SECTOR, AXIS); // new way of calculation flow, less verbose
 }
 
-double Elem::thetaF(int32_t forwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	double t = (MESH_SECTOR->elems[forwardID].k + k) * (MESH_SECTOR->elems[forwardID].T - T);
-	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.x);
-	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.y);
-	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[forwardID].localConfig.geometry.step.z);
-	return t;
+double Elem::thetaIncoming(const int32_t EXTERNAL_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
+	// heat flow from external to current elem
+	double t = (MESH_SECTOR->elems[EXTERNAL_ID].k + k) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
+	switch (AXIS) {
+	case 1:
+		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.x);
+		return t;
+	case 2:
+		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.y);
+		return t;
+	case 3:
+		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.z);
+		return t;
+	default:
+		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
+		exit(5);
+	}
 }
 
-double Elem::thetaB(int32_t backwardID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	double t = (k + MESH_SECTOR->elems[backwardID].k) * (T - MESH_SECTOR->elems[backwardID].T);
-	if      (AXIS == 1) t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.x);
-	else if (AXIS == 2) t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.y);
-	else                t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[backwardID].localConfig.geometry.step.z);
-	return t;
+double Elem::thetaF(const int32_t FORWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
+	// heat flow from forward to current elem
+	double t = (MESH_SECTOR->elems[FORWARD_ID].k + k) * (MESH_SECTOR->elems[FORWARD_ID].T - T);
+	switch (AXIS) {
+	case 1:
+		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.x);
+		return t;
+	case 2:
+		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.y);
+		return t;
+	case 3:
+		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.z);
+		return t;
+	default:
+		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
+		exit(5);
+	}
+}
+
+double Elem::thetaB(const int32_t BACKWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
+	// heat flow from current  to backward elem
+	double t = (k + MESH_SECTOR->elems[BACKWARD_ID].k) * (T - MESH_SECTOR->elems[BACKWARD_ID].T);
+	switch (AXIS) {
+	case 1:
+		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.x);
+		return t;
+	case 2:
+		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.y);
+		return t;
+	case 3:
+		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.z);
+		return t;
+	default:
+		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
+		exit(5);
+	}
 }
 
 double Elem::laserFlux(const Laser* LASER) {
@@ -168,7 +210,7 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
 		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
 		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
-		if (NEIGHBOURS.zPlus == -1)  totalFlux += localConfig.geometry.surfaceArea.z * 10.0 * (T - Config::Temperature::air);// *localConfig.geometry.stepRev.z;
+		if (NEIGHBOURS.zPlus == -1)  totalFlux += localConfig.geometry.surfaceArea.z * 10.0 * (T - Config::Temperature::air);
 		return totalFlux;
 	}
 }

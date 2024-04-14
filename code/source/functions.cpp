@@ -80,6 +80,9 @@ uint32_t digitsInValue(const uint32_t value) {
 }
 
 void printIntro() {
+	printf("\n");
+	printf("\n");
+	printf("\n");
 	printf("///////////////////////////////////////////////////////////////\n");
 	printf("// Selective Laser Melting (SLM) numerical modelling program //\n");
 	printf("///////////////////////////////////////////////////////////////\n");
@@ -89,4 +92,7 @@ void printOutro() {
 	printf("///////////////////////////////////////////////////////////////\n");
 	printf("//                   Program has finished                    //\n");
 	printf("///////////////////////////////////////////////////////////////\n");
+	printf("\n");
+	printf("\n");
+	printf("\n");
 }

@@ -35,7 +35,7 @@ void DataContainer::init(size_t _ID, MeshSector* meshSectors, MeshSector* allMes
 void DataContainer::advance() {
 	if (timeFlowPtr) timeFlowPtr->advance();
 	meshSectorPtr->advance();
-	if (ID == Config::Processes::inParallel - 1) laserPtr->advance();
+	if (ID == (size_t)Config::Processes::count - 1) laserPtr->advance();
 	stepsInIsolation++;
 	if (stepsInIsolation == maxStepsInIsolation) timeToSync = true;
 }
@@ -49,7 +49,7 @@ void DataContainer::sync(MeshSector* meshSectors) {
 void DataContainer::syncContainers(MeshSector* meshSectors, DataContainer* dataContainers) {
 	Timer timer = Timer();
 	timer.start();
-	for (size_t i = 0; i < Config::Processes::inParallel; i++) {
+	for (size_t i = 0; i < Config::Processes::count; i++) {
 		dataContainers[i].sync(meshSectors);
 	}
 }

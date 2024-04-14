@@ -2,11 +2,14 @@
 #include "../include/TimeFlow.h"
 #include "../include/Config.h"
 #include "../include/functions.h"
+#include "../include/Laser.h"
 
-TimeFlow::TimeFlow() {
+TimeFlow::TimeFlow(const Laser& LASER) {
 	start = Config::Time::start;
 	end = Config::Time::end;
 	step = Config::Time::step;
+	double endBasedOnLaser = calculateEndTime(LASER);
+	endBasedOnLaser < end ? end = endBasedOnLaser : end = end;
 	now = start;
 	iteration = 0;
 	iterationLogger = 0;
@@ -18,7 +21,9 @@ TimeFlow::TimeFlow() {
 	stopSimulation = false;
 	timerGlobal.start();
 	timerCalculation.start();
-	std::cout << "simulation start time = " << Config::Time::start << "s, end time = " << Config::Time::end << "s, time step = " << Config::Time::step << "s" << std::endl;
+	std::cout << "simulation start time = " << start << "s, end time = " << end << "s, time step = " << step << "s" << std::endl;
+	std::cout << "total iterations to do = " << totalIterations << ", iterations to log = " << desiredLogEntries << std::endl;
+	std::cout << "~~~~~~" << std::endl;
 }
 
 TimeFlow::~TimeFlow() {
@@ -30,21 +35,12 @@ void TimeFlow::advance() {
 	iteration += 1;
 	if (iteration % logEvery == 0) {
 		logThisStep = true;
-		//iterationLogger += 1;
-		//std::cout << info() << '\n';
-		//if (iterationLogger == desiredLogEntries) {
-		//	stopSimulation = true;
-		//}
 	}
-	//else {
-	//	logThisStep = false;
-	//}
 }
 
 void TimeFlow::removeFlag() {
 	iterationLogger += 1;
 	std::cout << info() << '\n';
-	//std::cout << "calc time" << timerCalculation.formatElapsed() << std::endl;
 	if (iterationLogger == desiredLogEntries) {
 		stopSimulation = true;
 	}
@@ -64,4 +60,12 @@ std::string TimeFlow::info() {
 	std::string eta = timerGlobal.formatETA(iterationLogger, desiredLogEntries);
 	std::string string = iterationsOutOfTotal + " | " + elapsed + " | " + left + " | " + eta;
 	return string;
+}
+
+double TimeFlow::calculateEndTime(const Laser& LASER) const {
+	double trackCount = (double)(Config::Laser::tracks * Config::Laser::layers);
+	double trackLength = LASER.turnaroundLoc - LASER.vec.x;
+	double v = Config::Laser::vel.x;
+	double time = trackCount * trackLength / v;
+	return time;
 }

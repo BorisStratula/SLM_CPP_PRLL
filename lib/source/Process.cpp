@@ -24,7 +24,7 @@ void Process::start() {
 	finished = false;
 	thread = std::thread(&Process::_process, this);
 	initialized = true;
-	std::cout << "Process started: \"" << getProcessId() << "_" << getProcessName() << "\"" << std::endl;
+	//std::cout << "Process started: \"" << getProcessId() << "_" << getProcessName() << "\"" << std::endl;
 }
 
 void Process::stop() {
@@ -33,7 +33,7 @@ void Process::stop() {
 	while(!finished) {}
 	thread.join();
 	initialized = false;
-	std::cout << "Process finished: \"" << getProcessId() << "_" << getProcessName() << "\"" << std::endl;
+	//std::cout << "Process finished: \"" << getProcessId() << "_" << getProcessName() << "\"" << std::endl;
 }
 
 void Process::_process() {

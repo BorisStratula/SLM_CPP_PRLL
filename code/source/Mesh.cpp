@@ -33,6 +33,7 @@ Mesh::Mesh(MeshSector* meshSectors, Laser* laser) {
 	currentElemID = 0;
 	createMesh();
 	sectorPreprocessor(meshSectors, laser);
+	laser->scaleVectorToGeometrySize(nodes[nodesCount - 1].vec);
 }
 
 Mesh::~Mesh() {
@@ -106,6 +107,7 @@ void Mesh::createMesh() {
 		<< nodes[nodesCount - 1].vec.x * 1000.0 << "mm x-axis, " 
 		<< nodes[nodesCount - 1].vec.y * 1000.0 << "mm y-axis, "
 		<< nodes[nodesCount - 1].vec.z * 1000.0 << "mm z-axis" << std::endl;
+	std::cout << "~~~~~~" << std::endl;
 }
 
 void Mesh::sectorPreprocessor(MeshSector* meshSectors, Laser* laser) {
@@ -115,18 +117,21 @@ void Mesh::sectorPreprocessor(MeshSector* meshSectors, Laser* laser) {
 	sectorLaserAssign(meshSectors, laser);
 	sectorLookUpTable(meshSectors);
 	splitMesh(meshSectors);
-	std::cout << "sectors created, " << timer.formatElapsed() << ", elements relative overhead = " << overhed(meshSectors) << ", overhead/processors = " << overhed(meshSectors)/ MeshSector::count << std::endl;
+	std::cout << "sectors created, " << timer.formatElapsed() << std::endl;
+	std::cout << "elements relative overhead = " << overhed(meshSectors) << ", overhead/processors = " << overhed(meshSectors) / MeshSector::count << std::endl;
+	std::cout << "~~~~~~" << std::endl;
 }
 
 void Mesh::sectorGeometryCalculator(MeshSector* meshSectors) {
-	uint32_t processCount = Config::Processes::inParallel;
+	uint32_t processCount = Config::Processes::count;
 	uint32_t xDiv;
 	uint32_t yDiv;
 	if (!findOptimalRatio(&processCount, &resolution.x, &resolution.y, &xDiv, &yDiv)) {
 		printf("findOptimalRatio failed\n");
 		exit(-1);
 	}
-	printf("Divide axis in sectors: x -> %u, y -> %u\n", xDiv, yDiv);
+	printf("process count = %u\n", processCount);
+	printf("divide axis in sectors: x -> %u, y -> %u\n", xDiv, yDiv);
 	auto minStepInSubmesh = IntVec3(resolution.x / xDiv, resolution.y / yDiv, resolution.z);
 	if (minStepInSubmesh.x * minStepInSubmesh.y == 0) {
 		printf("min step in submesh = 0\n");
