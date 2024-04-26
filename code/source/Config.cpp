@@ -74,8 +74,6 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
-		Geometry::mirrorXAxis = bool{ processedFile["geometry"]["mirror x-axis"] };
-		Geometry::mirrorYAxis = bool{ processedFile["geometry"]["mirror y-axis"] };
 
 
 		Time::start = double{ processedFile["time"]["start"] };
@@ -158,7 +156,6 @@ void Config::readConfig() {
 uint32_t    Config::Processes::count = 0;
 std::string Config::configPath = "null";
 std::string Config::Directory::project = "null";
-//Vec3        Config::Geometry::size = Vec3();
 IntVec3     Config::Geometry::resolution = IntVec3();
 Vec3        Config::Geometry::step = Vec3();
 Vec3        Config::Geometry::stepRev = Vec3();
@@ -167,8 +164,6 @@ double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 IntVec3     Config::Geometry::buffer = IntVec3();
-bool        Config::Geometry::mirrorXAxis = false;
-bool        Config::Geometry::mirrorYAxis = false;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;

@@ -89,7 +89,6 @@ public:
 	void vecInit(Elem* elems);
 	void scaleVecCalculate();
 	void fetchConfig();
-	void applyMirror();
 	void chechState();
 	void calcStep1(const Laser* LASER);
 	void calcStep2();

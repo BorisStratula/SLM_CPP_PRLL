@@ -27,7 +27,6 @@ bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Ne
 	index = INDEX_VECTOR;
 	vecInit(elems);
 	fetchConfig();
-	applyMirror();
 	state = STATE;
 	underLaser = 0;
 	timesMelted = 0;
@@ -280,23 +279,6 @@ void Elem::fetchConfig() {
 	localConfig.energy.enthalpy.minusPowder =  localConfig.mass.powder * Config::Energy::Solid::C * Config::Temperature::melting;
 	localConfig.energy.enthalpy.plusRegular =  localConfig.energy.enthalpy.minusRegular + localConfig.mass.solid * Config::Energy::Enthalpy::fusion;
 	localConfig.energy.enthalpy.plusPowder =   localConfig.energy.enthalpy.minusPowder + localConfig.mass.powder * Config::Energy::Enthalpy::fusion;
-}
-
-void Elem::applyMirror() {
-	if (Config::Geometry::mirrorXAxis) {
-		if (neighbours.xMinus == -1) {
-			neighbours.xMinus = neighbours.xPlus;
-			neighboursTruncated.xMinus = neighbours.xMinus;
-			onSurface.x--;
-		}
-	}
-	if (Config::Geometry::mirrorYAxis) {
-		if (neighbours.yMinus == -1) {
-			neighbours.yMinus = neighbours.yPlus;
-			neighboursTruncated.yMinus = neighbours.yMinus;
-			onSurface.y--;
-		}
-	}
 }
 
 void Elem::chechState() {

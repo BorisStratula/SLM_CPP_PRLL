@@ -20,7 +20,6 @@ public:
 	};
 
 	struct Geometry {
-		//static Vec3 size;
 		static IntVec3 resolution;
 		static Vec3 step;
 		static Vec3 stepRev;
@@ -29,8 +28,6 @@ public:
 		static double powderThickness;
 		static double surfaceArea;
 		static IntVec3 buffer;
-		static bool mirrorXAxis;
-		static bool mirrorYAxis;
 	};
 
 	struct Time {

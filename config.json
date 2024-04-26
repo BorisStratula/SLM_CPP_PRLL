@@ -20,9 +20,7 @@
 			"z": [ 14, 18, 22 ]
 		},
 		"powder thickness": 60e-6,
-		"buffer zone, elems": 1,
-		"mirror x-axis": false,
-		"mirror y-axis": false
+		"buffer zone, elems": 1
   },
   "time": {
 	  "start": 0,
@@ -30,7 +28,7 @@
 	  "iterations": 100000
   },
   "logging": {
-	  "log entries": 20
+	  "log entries": 10
   },
   "temperatures": {
 	  "air": 300,
@@ -46,19 +44,19 @@
 	  }
   },
   "energy": {
-	"solid": {
-		"C": 770,
-		"KA": 0.01463,
-		"KB": -0.53614
-	},
-	"liquid": {
-		"C": 1150,
-		"KA": 0.01808,
-		"KB": -6.12967
-	},
-	"enthalpy": {
-		"fusion": 286000
-	}
+		"solid": {
+			"C": 770,
+			"KA": 0.01463,
+			"KB": -0.53614
+		},
+		"liquid": {
+			"C": 1150,
+			"KA": 0.01808,
+			"KB": -6.12967
+		},
+		"enthalpy": {
+			"fusion": 286000
+		}
   },
   "radiation": {
 	  "emmisivity": 1
