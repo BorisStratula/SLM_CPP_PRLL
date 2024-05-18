@@ -26,10 +26,9 @@ bool Elem::init(Elem* elems, uint32_t _ID, const Vec3I& INDEX_VECTOR, const Neig
 	index = INDEX_VECTOR;
 	vecInit(elems);
 	fetchConfig();
-	state = STATE;
+	state = static_cast<State>(STATE);
 	underLaser = 0;
 	timesMelted = 0;
-	//wasProcessed = false;
 	T = Config::Temperature::initial;
 	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
@@ -112,7 +111,6 @@ double Elem::HofT() const {
 }
 
 double Elem::enthalpyFlow(const Laser* LASER) {
-	//wasProcessed = false;
 	Vec3 thetaVec = Vec3(
 		thetaAlongAxis(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr),
 		thetaAlongAxis(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
@@ -282,15 +280,15 @@ void Elem::fetchConfig() {
 
 void Elem::chechState() {
 	if (T > Config::Temperature::melting) {
-		if (state == 2 or state == 0) {
-			if (state == 0) H = HofT();
-			state = 1;
+		if (state == solid or state == powder) {
+			if (state == powder) H = HofT();
+			state = liquid;
 			timesMelted += 1;
 		}
 	}
 	if (T < Config::Temperature::melting) {
-		if (state == 1) {
-			state = 2;
+		if (state == liquid) {
+			state = solid;
 		}
 	}
 }
@@ -301,7 +299,6 @@ void Elem::updateKandT() {
 }
 
 void Elem::calcStep1(const Laser* LASER) {
-	//wasProcessed = false;
 	HFlow = enthalpyFlow(LASER);
 }
 
@@ -310,12 +307,5 @@ void Elem::calcStep2() {
 	updateKandT();
 	chechState();
 	updateKandT();
-	//if (!wasProcessed) {
-	//	wasProcessed = true;
-	//	
-	//}
-	//else {
-	//	printf("kek lol\n");
-	//}
 }
 

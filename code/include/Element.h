@@ -9,6 +9,8 @@ class Mesh;
 class MeshSector;
 class Laser;
 
+enum State { powder, liquid, solid };
+
 class Elem {
 public:
 	uint32_t ID = 0;
@@ -21,10 +23,9 @@ public:
 	Vec3I index;
 	Vec3 elemScaleVec;
 	Vec3 nodeScaleVec;
-	uint32_t state = 0; // 0 == powder, 1 == liquid, 2 == solid
+	State state;
 	uint32_t underLaser = 0;
 	uint32_t timesMelted = 0;
-	//bool wasProcessed = false;
 	double T = 0.0;
 	double k = 0.0;
 	double H = 0.0;

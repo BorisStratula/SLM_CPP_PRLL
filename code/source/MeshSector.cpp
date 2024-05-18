@@ -155,7 +155,7 @@ void MeshSector::addNewLayerOfPowder() {
 				elems[ID].MDebug = elems[zPlus].MDebug;
 			}
 			else {
-				elems[ID].state = 0;
+				elems[ID].state = static_cast<State>(powder);
 				elems[ID].timesMelted = 0;
 				elems[ID].T = Config::Temperature::initial;
 				elems[ID].k = elems[ID].thermalConductivity();

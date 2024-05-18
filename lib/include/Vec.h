@@ -10,10 +10,7 @@
 #define VEC_TEMPLATE_T template <typename T>
 #define VEC_TEMPLATE_N template <size_t N>
 #define VEC Vec<T, N>
-#define VEC_1 Vec<T, 1>
-#define VEC_2 Vec<T, 2>
 #define VEC_3 Vec<T, 3>
-#define VEC_4 Vec<T, 4>
 
 #define VEC_DEFAULTS(N) \
 	static const size_t n = N;\
@@ -71,7 +68,6 @@ VEC_TEMPLATE VEC& operator /= (VEC& v1, const VEC& v2) { VEC_FOR v1[i] /= v2[i];
 
 // Vector algebra
 VEC_TEMPLATE T dot(const VEC& v1, const VEC& v2) { VEC v; VEC_FOR v[i] = v1[i] * v2[i]; return v.sum(); }
-VEC_TEMPLATE_T VEC_2 cross(const VEC_2& v) { return VEC_2(v.y, -v.x); }
 VEC_TEMPLATE_T VEC_3 cross(const VEC_3& v1, const VEC_3& v2) { return VEC_3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x); }
 
 #undef VEC_FOR
@@ -79,10 +75,9 @@ VEC_TEMPLATE_T VEC_3 cross(const VEC_3& v1, const VEC_3& v2) { return VEC_3(v1.y
 #undef VEC_TEMPLATE_T
 #undef VEC_TEMPLATE_N
 #undef VEC
-#undef VEC_2
 #undef VEC_3
-#undef VEC_4
 #undef VEC_DEFAULTS
+
 
 typedef Vec<int, 3> Vec3I;
 typedef Vec<double, 3> Vec3;

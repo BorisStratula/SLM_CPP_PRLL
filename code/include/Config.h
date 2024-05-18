@@ -12,7 +12,7 @@ public:
 	static std::string configPath;
 
 	struct Processes {
-		static uint32_t count; // 0 - no processes created, 1 and more - amount of manually created processes
+		static uint32_t count;
 	};
 
 	struct Directory {
