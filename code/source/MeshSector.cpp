@@ -1,8 +1,6 @@
 #include <cstdio>
 #include <cmath>
 
-#include "../../lib/include/IntVec3.h"
-
 #include "../include/MeshSector.h"
 #include "../include/Element.h"
 #include "../include/Config.h"
@@ -10,10 +8,10 @@
 uint32_t MeshSector::count = 0;
 
 MeshSector::MeshSector() {
-	anchor = IntVec3();
-	anchorBuff = IntVec3();
-	resolution = IntVec3();
-	resolutionBuff = IntVec3();
+	anchor = Vec3I();
+	anchorBuff = Vec3I();
+	resolution = Vec3I();
+	resolutionBuff = Vec3I();
 	elemsCount = 0;
 	elemsCountBuff = 0;
 	vacantElemID = 0;
@@ -39,7 +37,7 @@ MeshSector::~MeshSector() {
 	}
 }
 
-void MeshSector::init(const IntVec3& ANCHOR, const IntVec3& RESOLUTION) {
+void MeshSector::init(const Vec3I& ANCHOR, const Vec3I& RESOLUTION) {
 	anchor = ANCHOR;
 	anchorBuff = anchor - Config::Geometry::buffer;
 	resolution = RESOLUTION;

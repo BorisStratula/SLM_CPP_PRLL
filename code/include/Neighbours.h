@@ -2,8 +2,7 @@
 #define NEIGHBOURS_H
 
 #include <stdint.h>
-#include "../../lib/include/Vec3.h"
-#include "../../lib/include/IntVec3.h"
+#include "../../lib/include/Vec.h"
 
 class Neighbours {
 public:
@@ -14,21 +13,21 @@ public:
 	int32_t zMinus;
 	int32_t zPlus;
 	int32_t origin;
-	IntVec3 onSurface;
+	Vec3I onSurface;
 
 	Neighbours();
-	Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION);
+	Neighbours(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION);
 	~Neighbours();
 
 	void truncate();
 
 private:
-	int32_t xMinusID(const IntVec3& INDEX_VEC, uint32_t ID) const;
-	int32_t xPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
-	int32_t yMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
-	int32_t yPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
-	int32_t zMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
-	int32_t zPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const;
+	int32_t xMinusID(const Vec3I& INDEX_VEC, uint32_t ID) const;
+	int32_t xPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const;
+	int32_t yMinusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const;
+	int32_t yPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const;
+	int32_t zMinusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const;
+	int32_t zPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const;
 };
 
 #endif // !NEIGHBOURS_H

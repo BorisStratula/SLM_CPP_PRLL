@@ -14,11 +14,9 @@ project ("slm_cpp_mesh_divided")
 set(SOURCES
 	"main.cpp"
 
-	"lib/source/IntVec3.cpp"
 	"lib/source/lean_vtk.cpp"
 	"lib/source/Process.cpp"
 	"lib/source/Timer.cpp"
-	"lib/source/Vec3.cpp"
 
 	"code/source/BodyData.cpp"
 	"code/source/Config.cpp"

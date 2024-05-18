@@ -1,6 +1,5 @@
 #include <vector>
 
-#include "../../lib/include/IntVec3.h"
 #include "../include/Element.h"
 #include "../include/Config.h"
 #include "../include/Mesh.h"
@@ -14,7 +13,7 @@ Elem::~Elem() {
 	}
 }
 
-bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
+bool Elem::init(Elem* elems, uint32_t _ID, const Vec3I& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
 	if (vertices != nullptr) return false;
 	ID = _ID;
 	globalID = _ID;
@@ -119,7 +118,7 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 		thetaAlongAxis(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
 		thetaAlongAxis(neighboursTruncated.zPlus, neighboursTruncated.zMinus, 3, meshSectorPtr)
 	);
-	thetaVec = thetaVec.dot(localConfig.geometry.surfaceArea);
+	thetaVec = thetaVec * localConfig.geometry.surfaceArea;
 	double theta = thetaVec.x + thetaVec.y + thetaVec.z;
 	double q = laserFlux(LASER);
 	qDebug = q;
@@ -199,12 +198,12 @@ double Elem::laserFlux(const Laser* LASER) {
 }
 
 double Elem::radiantFlux() const {
-	if (onSurface.sumOfComponents() == 0) return 0.0;
-	else return (localConfig.geometry.surfaceArea.dot(onSurface)).sumOfComponents() * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
+	if (onSurface.sum() == 0) return 0.0;
+	else return (localConfig.geometry.surfaceArea * (Vec3)onSurface).sum() * Config::Radiation::fluxConst * (T * T * T * T - Config::Temperature::air4);
 }
 
 double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
-	if (onSurface.sumOfComponents() == 0) return 0.0;
+	if (onSurface.sum() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
 		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
@@ -217,14 +216,14 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 
 void Elem::vecInit(Elem* elems) {
 	scaleVecCalculate();
-	if      (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step.dot(Vec3(1.0, 0.0, 0.0)).dot(elemScaleVec);
-	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 1.0, 0.0)).dot(elemScaleVec);
-	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step.dot(Vec3(0.0, 0.0, 1.0)).dot(elemScaleVec);
+	if      (neighbours.xMinus != -1) vec = elems[neighbours.xMinus].vec + Config::Geometry::step * Vec3(1.0, 0.0, 0.0) * elemScaleVec;
+	else if (neighbours.yMinus != -1) vec = elems[neighbours.yMinus].vec + Config::Geometry::step * Vec3(0.0, 1.0, 0.0) * elemScaleVec;
+	else if (neighbours.zMinus != -1) vec = elems[neighbours.zMinus].vec + Config::Geometry::step * Vec3(0.0, 0.0, 1.0) * elemScaleVec;
 	else vec = Vec3(0.0, 0.0, 0.0);
 }
 
 void Elem::scaleVecCalculate() {
-	IntVec3 centralElemIndex = Config::Geometry::resolution.dot(Vec3(0.5, 0.5, 1.0));
+	Vec3I centralElemIndex = (Vec3I)(Vec3(0.5, 0.5, 1.0) * (Vec3)Config::Geometry::resolution);
 	Vec3 elemMult = Vec3(1.0, 1.0, 1.0);
 	Vec3 nodeMult = Vec3(1.0, 1.0, 1.0);
 	for (size_t i = 0; i < Config::Geometry::coarsen[0].size(); i++) {
@@ -245,12 +244,12 @@ void Elem::scaleVecCalculate() {
 		if (index.z > (centralElemIndex.z + Config::Geometry::coarsen[2][i])) elemMult.z *= 2.0;
 		if (index.z >= (centralElemIndex.z + Config::Geometry::coarsen[2][i])) nodeMult.z *= 2.0;
 	}
-	elemScaleVec = elemScaleVec.dot(elemMult);
-	nodeScaleVec = nodeScaleVec.dot(nodeMult);
+	elemScaleVec = elemScaleVec * elemMult;
+	nodeScaleVec = nodeScaleVec * nodeMult;
 }
 
 void Elem::fetchConfig() {
-	localConfig.geometry.step = Config::Geometry::step.dot(nodeScaleVec);
+	localConfig.geometry.step = Config::Geometry::step * nodeScaleVec;
 	localConfig.geometry.stepRev = Vec3(
 		1 / localConfig.geometry.step.x,
 		1 / localConfig.geometry.step.y,

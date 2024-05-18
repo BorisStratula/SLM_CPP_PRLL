@@ -7,8 +7,8 @@
 Laser::Laser() {
 	vec = Config::Laser::vec;
 	vel = Config::Laser::vel;
-	velScaled = vel.multiply(Config::Time::step);
-	position = IntVec3();
+	velScaled = vel * Config::Time::step;
+	position = Vec3I();
 	radius = Config::Laser::radius;
 	radiusInvSqr = 1 / radius / radius;
 	divInv = 1 / (-1.0 + std::exp(5));
@@ -41,7 +41,7 @@ void Laser::advance() {
 }
 
 void Laser::scaleVectorToGeometrySize(const Vec3& LAST_NODE_VEC) {
-	vec = vec.dot(LAST_NODE_VEC);
+	vec = vec * LAST_NODE_VEC;
 	moveVectorBasedOnTracksCount();
 	Config::Laser::vec = vec;
 	turnaroundLoc *= LAST_NODE_VEC.x;

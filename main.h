@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "lib/include/IntVec3.h"
+#include "lib/include/Vec.h"
 
 #include "code/include/functions.h"
 #include "code/include/Config.h"

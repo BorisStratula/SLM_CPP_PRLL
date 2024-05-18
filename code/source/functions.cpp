@@ -90,7 +90,7 @@ void printIntro() {
 
 void printOutro() {
 	printf("///////////////////////////////////////////////////////////////\n");
-	printf("//                   Program has finished                    //\n");
+	printf("//                     Program finished                      //\n");
 	printf("///////////////////////////////////////////////////////////////\n");
 	printf("\n");
 	printf("\n");

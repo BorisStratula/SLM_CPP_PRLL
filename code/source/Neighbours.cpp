@@ -9,11 +9,11 @@ Neighbours::Neighbours() {
 	zMinus = 0;
 	zPlus = 0;
 	origin = 0;
-	onSurface = IntVec3();
+	onSurface = Vec3I();
 }
 
 
-Neighbours::Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) {
+Neighbours::Neighbours(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) {
 	xMinus = xMinusID(INDEX_VEC, ID);
 	xPlus = xPlusID(INDEX_VEC, ID, RESOLUTION);
 	yMinus = yMinusID(INDEX_VEC, ID, RESOLUTION);
@@ -21,7 +21,7 @@ Neighbours::Neighbours(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RES
 	zMinus = zMinusID(INDEX_VEC, ID, RESOLUTION);
 	zPlus = zPlusID(INDEX_VEC, ID, RESOLUTION);
 	origin = (int32_t)ID;
-	onSurface = IntVec3();
+	onSurface = Vec3I();
 }
 
 
@@ -30,7 +30,7 @@ Neighbours::~Neighbours() {
 }
 
 
-int32_t Neighbours::xMinusID(const IntVec3& INDEX_VEC, uint32_t ID) const {
+int32_t Neighbours::xMinusID(const Vec3I& INDEX_VEC, uint32_t ID) const {
 	if (INDEX_VEC.x == 0) {
 		return -1;
 	}
@@ -39,7 +39,7 @@ int32_t Neighbours::xMinusID(const IntVec3& INDEX_VEC, uint32_t ID) const {
 	}
 }
 
-int32_t Neighbours::xPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const {
+int32_t Neighbours::xPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const {
 	if (INDEX_VEC.x == RESOLUTION.x - 1) {
 		return -1;
 	}
@@ -48,7 +48,7 @@ int32_t Neighbours::xPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3
 	}
 }
 
-int32_t Neighbours::yMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const {
+int32_t Neighbours::yMinusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const {
 	if (INDEX_VEC.y == 0) {
 		return -1;
 	}
@@ -57,7 +57,7 @@ int32_t Neighbours::yMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec
 	}
 }
 
-int32_t Neighbours::yPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const {
+int32_t Neighbours::yPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const {
 	if (INDEX_VEC.y == RESOLUTION.y - 1) {
 		return -1;
 	}
@@ -66,7 +66,7 @@ int32_t Neighbours::yPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3
 	}
 }
 
-int32_t Neighbours::zMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const {
+int32_t Neighbours::zMinusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const {
 	if (INDEX_VEC.z == 0) {
 		return -1;
 	}
@@ -75,7 +75,7 @@ int32_t Neighbours::zMinusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec
 	}
 }
 
-int32_t Neighbours::zPlusID(const IntVec3& INDEX_VEC, uint32_t ID, const IntVec3& RESOLUTION) const {
+int32_t Neighbours::zPlusID(const Vec3I& INDEX_VEC, uint32_t ID, const Vec3I& RESOLUTION) const {
 	if (INDEX_VEC.z == RESOLUTION.z - 1) {
 		return -1;
 	}

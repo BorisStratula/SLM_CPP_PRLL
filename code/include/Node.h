@@ -2,7 +2,7 @@
 #define NODE_H
 
 #include <stdint.h>
-#include "../../lib/include/Vec3.h"
+#include "../../lib/include/Vec.h"
 
 class Node {
 public:

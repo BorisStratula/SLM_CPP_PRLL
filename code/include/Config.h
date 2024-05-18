@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "../../lib/include/vec3.h"
+#include "../../lib/include/Vec.h"
 
 class Config {
 public:
@@ -20,14 +20,14 @@ public:
 	};
 
 	struct Geometry {
-		static IntVec3 resolution;
+		static Vec3I resolution;
 		static Vec3 step;
 		static Vec3 stepRev;
 		static std::vector<std::vector<int32_t>> coarsen;
 		static double stepCoeff;
 		static double powderThickness;
 		static double surfaceArea;
-		static IntVec3 buffer;
+		static Vec3I buffer;
 	};
 
 	struct Time {

@@ -1,7 +1,7 @@
 #ifndef MESHBLOCK_H
 #define MESHBLOCK_H
 
-#include "../../lib/include/IntVec3.h"
+#include "../../lib/include/Vec.h"
 
 class Elem;
 class Laser;
@@ -9,10 +9,10 @@ class Laser;
 class MeshSector {
 public:
 	static uint32_t count;
-	IntVec3 anchor;
-	IntVec3 anchorBuff;
-	IntVec3 resolution;
-	IntVec3 resolutionBuff;
+	Vec3I anchor;
+	Vec3I anchorBuff;
+	Vec3I resolution;
+	Vec3I resolutionBuff;
 	uint32_t elemsCount;
 	uint32_t elemsCountBuff;
 	uint32_t vacantElemID;
@@ -27,7 +27,7 @@ public:
 	MeshSector();
 	~MeshSector();
 
-	void init(const IntVec3& anchor, const IntVec3& resolution);
+	void init(const Vec3I& anchor, const Vec3I& resolution);
 	void advance();
 	void getThisElem(Elem* elem, uint32_t sectorOrBuffer);
 	void copyThisElem(const Elem* elem);
