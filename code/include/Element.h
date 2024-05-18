@@ -2,13 +2,12 @@
 #define ELEMENT_H
 
 #include <stdint.h>
-#include "../../lib/include/Vec3.h"
+#include "../../lib/include/Vec.h"
 #include "Neighbours.h"
 
 class Mesh;
 class MeshSector;
 class Laser;
-class IntVec3;
 
 class Elem {
 public:
@@ -17,9 +16,9 @@ public:
 	uint32_t* vertices = nullptr;
 	Neighbours neighbours;
 	Neighbours neighboursTruncated;
-	IntVec3 onSurface;
+	Vec3I onSurface;
 	Vec3 vec;
-	IntVec3 index;
+	Vec3I index;
 	Vec3 elemScaleVec;
 	Vec3 nodeScaleVec;
 	uint32_t state = 0; // 0 == powder, 1 == liquid, 2 == solid
@@ -72,7 +71,7 @@ public:
 
 	~Elem();
 
-	bool init(Elem* elems, uint32_t ID, const IntVec3& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE);
+	bool init(Elem* elems, uint32_t ID, const Vec3I& INDEX_VECTOR, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE);
 	bool valid() const;
 
 	double thermalConductivity() const;

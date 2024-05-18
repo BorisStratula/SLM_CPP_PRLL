@@ -2,8 +2,7 @@
 #define MESH_H
 
 #include <stdint.h>
-#include "../../lib/include/vec3.h"
-#include "../../lib/include/intvec3.h"
+#include "../../lib/include/Vec.h"
 #include "Node.h"
 #include "Element.h"
 
@@ -14,7 +13,7 @@ class Mesh {
 public:
 
 
-	IntVec3 resolution;
+	Vec3I resolution;
 	uint32_t powderLayers;
 	uint32_t startPowderAtLayer;
 	uint32_t nodesCount;
@@ -28,7 +27,7 @@ public:
 	Mesh(MeshSector* meshSectors, Laser* laser);
 	~Mesh();
 
-	void createElement(uint32_t elemID, const IntVec3& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE);
+	void createElement(uint32_t elemID, const Vec3I& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE);
 	void createNode(uint32_t nodeID, uint32_t nodePos, const Vec3& ANCHOR_VEC, const Vec3& NODE_SCALE_VEC);
 	uint32_t findNodeForElement(uint32_t nodePos, const Vec3& ELEM_VEC, const Vec3& NODE_SCALE_VEC, const Neighbours& NEIGHBOURS);
 	void createMesh();
@@ -39,7 +38,7 @@ public:
 	void sectorPointerToItself(MeshSector* meshSectors);
 	void splitMesh(MeshSector* meshSectors);
 	uint32_t isElemInsideSector(const Elem* elem, const MeshSector* meshSectors);
-	IntVec3 returnResolution() const;
+	Vec3I returnResolution() const;
 	double overhed(MeshSector* meshSectors);
 };
 

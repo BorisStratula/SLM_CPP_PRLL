@@ -2,7 +2,7 @@
 #define LASER_H
 
 #include <string>
-#include "../../lib/include/Vec3.h"
+#include "../../lib/include/Vec.h"
 
 class Elem;
 
@@ -11,7 +11,7 @@ public:
 	Vec3 vec;
 	Vec3 vel;
 	Vec3 velScaled;
-	IntVec3 position;
+	Vec3I position;
 	double radius;
 	double radiusInvSqr;
 	double divInv;

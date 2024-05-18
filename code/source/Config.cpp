@@ -48,7 +48,7 @@ void Config::readConfig() {
 		//	double{ processedFile["geometry"]["size"]["y"] },
 		//	double{ processedFile["geometry"]["size"]["z"] }
 		//);
-		Geometry::resolution = IntVec3(
+		Geometry::resolution = Vec3I(
 			int{ processedFile["geometry"]["elems"]["x"]},
 			int{ processedFile["geometry"]["elems"]["y"] },
 			int{ processedFile["geometry"]["elems"]["z"] }
@@ -69,7 +69,7 @@ void Config::readConfig() {
 		Geometry::stepCoeff = 0.5 * Geometry::stepRev.x * Geometry::stepRev.x;
 		Geometry::powderThickness = double{ processedFile["geometry"]["powder thickness"] };
 		Geometry::surfaceArea = Geometry::step.x * Geometry::step.y;
-		Geometry::buffer = IntVec3(
+		Geometry::buffer = Vec3I(
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
@@ -156,14 +156,14 @@ void Config::readConfig() {
 uint32_t    Config::Processes::count = 0;
 std::string Config::configPath = "null";
 std::string Config::Directory::project = "null";
-IntVec3     Config::Geometry::resolution = IntVec3();
+Vec3I       Config::Geometry::resolution = Vec3I();
 Vec3        Config::Geometry::step = Vec3();
 Vec3        Config::Geometry::stepRev = Vec3();
 std::vector<std::vector<int32_t>>     Config::Geometry::coarsen{};
 double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
-IntVec3     Config::Geometry::buffer = IntVec3();
+Vec3I       Config::Geometry::buffer = Vec3I();
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;

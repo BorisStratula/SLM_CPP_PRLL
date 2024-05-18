@@ -41,7 +41,7 @@ Mesh::~Mesh() {
 	if (elems) delete[] elems;
 }
 
-void Mesh::createElement(uint32_t elemID, const IntVec3& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
+void Mesh::createElement(uint32_t elemID, const Vec3I& INDEX_VEC, const Neighbours& NEIGHBOURS, const Neighbours& NEIGHBOURS_TRUNCATED, const uint32_t STATE) {
 	uint32_t nodeID;
 	auto* newElem = &elems[elemID];
 	if (newElem->init(elems ,elemID, INDEX_VEC, NEIGHBOURS, NEIGHBOURS_TRUNCATED, STATE) != true) {
@@ -85,7 +85,7 @@ void Mesh::createMesh() {
 	Timer timer = Timer();
 	timer.start();
 	uint32_t elemID = 0;
-	IntVec3 indexVector = IntVec3();
+	Vec3I indexVector = Vec3I();
 	Neighbours neighbours = Neighbours();
 	Neighbours neighboursTruncated = Neighbours();
 	uint32_t state = 2;
@@ -134,24 +134,24 @@ void Mesh::sectorGeometryCalculator(MeshSector* meshSectors) {
 	}
 	printf("process count = %u\n", processCount);
 	printf("divide axis in sectors: x -> %u, y -> %u\n", xDiv, yDiv);
-	auto minStepInSubmesh = IntVec3(resolution.x / xDiv, resolution.y / yDiv, resolution.z);
+	auto minStepInSubmesh = Vec3I(resolution.x / xDiv, resolution.y / yDiv, resolution.z);
 	if (minStepInSubmesh.x * minStepInSubmesh.y == 0) {
 		printf("min step in submesh = 0\n");
 		exit(-2);
 	}
-	auto residualElems = IntVec3(resolution.x % xDiv, resolution.y % yDiv, 0);
-	auto localPosCorrection = IntVec3();
-	auto localSizeCorrection = IntVec3();
+	auto residualElems = Vec3I(resolution.x % xDiv, resolution.y % yDiv, 0);
+	auto localPosCorrection = Vec3I();
+	auto localSizeCorrection = Vec3I();
 	size_t ID;
 	for (size_t y = 0; y < yDiv; y++) {
-		localSizeCorrection = IntVec3(1, 1, 0);
+		localSizeCorrection = Vec3I(1, 1, 0);
 		localPosCorrection.x = 0;
 		if (y >= residualElems.y) localSizeCorrection.y = 0;
 		for (size_t x = 0; x < xDiv; x++) {
 			if (x >= residualElems.x) localSizeCorrection.x = 0;
 			ID = y * xDiv + x;
-			IntVec3 anchor = IntVec3((uint32_t)x * minStepInSubmesh.x, (uint32_t)y * minStepInSubmesh.y, 0) + localPosCorrection;
-			IntVec3 resolution = minStepInSubmesh + localSizeCorrection;
+			Vec3I anchor = Vec3I((uint32_t)x * minStepInSubmesh.x, (uint32_t)y * minStepInSubmesh.y, 0) + localPosCorrection;
+			Vec3I resolution = minStepInSubmesh + localSizeCorrection;
 			meshSectors[ID].init(anchor, resolution);
 			if (localSizeCorrection.x > 0) localPosCorrection.x++;
 		}
@@ -228,7 +228,7 @@ uint32_t Mesh::isElemInsideSector(const Elem* elem, const MeshSector* meshSector
 	return 0;
 }
 
-IntVec3 Mesh::returnResolution() const {
+Vec3I Mesh::returnResolution() const {
 	//int32_t xRes = (uint32_t)round(Config::Geometry::size.x / Config::Geometry::step.x);
 	//int32_t yRes = (uint32_t)round(Config::Geometry::size.y / Config::Geometry::step.y);
 	//int32_t zRes = (uint32_t)round(Config::Geometry::size.z / Config::Geometry::step.z);
