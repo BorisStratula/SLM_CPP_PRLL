@@ -13,6 +13,8 @@ public:
 	Vec3 velScaled;
 	IntVec3 position;
 	double radius;
+	double radiusInvSqr;
+	double divInv;
 	double power;
 	double specificPower;
 	double turnaroundLoc;

@@ -30,7 +30,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const IntVec3& INDEX_VECTOR, const Ne
 	state = STATE;
 	underLaser = 0;
 	timesMelted = 0;
-	wasProcessed = false;
+	//wasProcessed = false;
 	T = Config::Temperature::initial;
 	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
@@ -113,7 +113,7 @@ double Elem::HofT() const {
 }
 
 double Elem::enthalpyFlow(const Laser* LASER) {
-	wasProcessed = false;
+	//wasProcessed = false;
 	Vec3 thetaVec = Vec3(
 		thetaAlongAxis(neighboursTruncated.xPlus, neighboursTruncated.xMinus, 1, meshSectorPtr),
 		thetaAlongAxis(neighboursTruncated.yPlus, neighboursTruncated.yMinus, 2, meshSectorPtr),
@@ -296,18 +296,27 @@ void Elem::chechState() {
 	}
 }
 
+void Elem::updateKandT() {
+	T = TofH();
+	k = thermalConductivity();
+}
+
 void Elem::calcStep1(const Laser* LASER) {
-	wasProcessed = false;
+	//wasProcessed = false;
 	HFlow = enthalpyFlow(LASER);
 }
 
 void Elem::calcStep2() {
-	if (!wasProcessed) {
-		wasProcessed = true;
-		H += HFlow;
-		T = TofH();
-		k = thermalConductivity();
-		chechState();
-	}
+	H += HFlow;
+	updateKandT();
+	chechState();
+	updateKandT();
+	//if (!wasProcessed) {
+	//	wasProcessed = true;
+	//	
+	//}
+	//else {
+	//	printf("kek lol\n");
+	//}
 }
 

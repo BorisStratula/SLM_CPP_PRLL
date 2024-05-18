@@ -1,5 +1,5 @@
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
+#include <numbers>
 #include "../include/Laser.h"
 #include "../include/Config.h"
 #include "../include/Element.h"
@@ -10,9 +10,11 @@ Laser::Laser() {
 	velScaled = vel.multiply(Config::Time::step);
 	position = IntVec3();
 	radius = Config::Laser::radius;
+	radiusInvSqr = 1 / radius / radius;
+	divInv = 1 / (-1.0 + std::exp(5));
 	power = Config::Laser::power;
 	state = Config::Laser::state;
-	specificPower = power / M_PI / pow(radius, 2.0);
+	specificPower = power * std::numbers::inv_pi / std::pow(radius, 2.0);
 	turnaroundLoc = Config::Laser::goUntill;
 	sideStep = Config::Laser::sideStep;
 	needForNewLayer = false;
@@ -60,6 +62,8 @@ double Laser::heatToElem(Elem* const ELEM) const {
 	}
 	else {
 		ELEM->underLaser = 1;
-		return specificPower;
+		//return specificPower;
+		double q = 5.0 * power * std::exp(5.0 * (1.0 - distance * distance * radiusInvSqr)) * std::numbers::inv_pi * radiusInvSqr * divInv;
+		return q;
 	}
 }

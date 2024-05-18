@@ -25,7 +25,7 @@ public:
 	uint32_t state = 0; // 0 == powder, 1 == liquid, 2 == solid
 	uint32_t underLaser = 0;
 	uint32_t timesMelted = 0;
-	bool wasProcessed = false;
+	//bool wasProcessed = false;
 	double T = 0.0;
 	double k = 0.0;
 	double H = 0.0;
@@ -90,6 +90,7 @@ public:
 	void scaleVecCalculate();
 	void fetchConfig();
 	void chechState();
+	void updateKandT();
 	void calcStep1(const Laser* LASER);
 	void calcStep2();
 };

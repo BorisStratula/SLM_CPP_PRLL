@@ -86,7 +86,7 @@ void MeshSector::copyThisElem(const Elem* elem) {
 	elems[vacantElemID].state = elem->state;
 	elems[vacantElemID].underLaser = elem->underLaser;
 	elems[vacantElemID].timesMelted = elem->timesMelted;
-	elems[vacantElemID].wasProcessed = elem->wasProcessed;
+	//elems[vacantElemID].wasProcessed = elem->wasProcessed;
 	elems[vacantElemID].T = elem->T;
 	elems[vacantElemID].k = elem->k;
 	elems[vacantElemID].H = elem->H;
