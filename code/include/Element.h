@@ -9,7 +9,7 @@ class Mesh;
 class MeshSector;
 class Laser;
 
-enum State { powder, liquid, solid };
+enum State { powder, liquid, solid, vapor };
 
 class Elem {
 public:
@@ -23,9 +23,13 @@ public:
 	Vec3I index;
 	Vec3 elemScaleVec;
 	Vec3 nodeScaleVec;
-	State state;
+	State state = static_cast<State>(0);
 	uint32_t underLaser = 0;
 	uint32_t timesMelted = 0;
+	uint32_t timesVaporized = 0;
+	bool meltedThisTime = false;
+	bool vaporizedThisTime = false;
+	bool wasMoved = false;
 	double T = 0.0;
 	double k = 0.0;
 	double H = 0.0;
@@ -47,6 +51,7 @@ public:
 			double powder = 0.0;
 			double liquid = 0.0;
 			double solid = 0.0;
+			double vapor = 0.0;
 		} mass;
 		struct Energy {
 			struct Powder {
@@ -61,11 +66,17 @@ public:
 				double mc = 0.0;
 				double mcRev = 0.0;
 			} solid;
+			struct Vapor {
+				double mc = 0.0;
+				double mcRev = 0.0;
+			} vapor;
 			struct Enthalpy {
 				double minusRegular = 0.0;
 				double plusRegular = 0.0;
 				double minusPowder = 0.0;
 				double plusPowder = 0.0;
+				double minusVapor = 0.0;
+				double plusVapor = 0.0;
 			} enthalpy;
 		} energy;
 	} localConfig;

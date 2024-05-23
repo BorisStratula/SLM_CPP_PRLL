@@ -44,6 +44,10 @@ void DataContainer::advance() {
 	if (stepsInIsolation == maxStepsInIsolation) timeToSync = true;
 }
 
+void DataContainer::moveDownVaporizedElems() {
+	meshSectorPtr->moveDownVaporizedElems();
+}
+
 void DataContainer::addNewLayerOfPowder() {
 	meshSectorPtr->addNewLayerOfPowder();
 }

@@ -88,6 +88,7 @@ void Config::readConfig() {
 		Temperature::air4 = Temperature::air * Temperature::air * Temperature::air * Temperature::air;
 		Temperature::initial = double{ processedFile["temperatures"]["initial"] };
 		Temperature::melting = double{ processedFile["temperatures"]["melting"] };
+		Temperature::vaporization = double{ processedFile["temperatures"]["vaporization"] };
 		Temperature::cutOff = double{ processedFile["temperatures"]["cut off"] };
 
 
@@ -95,8 +96,10 @@ void Config::readConfig() {
 		Mass::Rho::packing = double{ processedFile["mass"]["rho"]["packing"] };
 		Mass::Rho::packingRev = 1 / Mass::Rho::packing;
 		Mass::Rho::liquid = double{ processedFile["mass"]["rho"]["liquid"] };
+		Mass::Rho::vapor = double{ processedFile["mass"]["rho"]["vapor"] };
 		Mass::solid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::solid;
 		Mass::liquid = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::liquid;
+		Mass::vapor = Geometry::step.x * Geometry::step.y * Geometry::step.z * Mass::Rho::vapor;
 		Mass::powder = Mass::solid * Mass::Rho::packing;
 
 		Misc::sigmoidConst = 1 / (1 + exp(-12.0 * Mass::Rho::packing + 6.0));
@@ -112,14 +115,22 @@ void Config::readConfig() {
 		Energy::Liquid::KB = double{ processedFile["energy"]["liquid"]["KB"] };
 		Energy::Liquid::mc = Mass::liquid * Energy::Liquid::C;
 		Energy::Liquid::mcRev = 1 / Energy::Liquid::mc;
+		Energy::Vapor::C = double{ processedFile["energy"]["vapor"]["C"] };
+		Energy::Vapor::KA = double{ processedFile["energy"]["vapor"]["KA"] };
+		Energy::Vapor::KB = double{ processedFile["energy"]["vapor"]["KB"] };
+		Energy::Vapor::mc = Mass::liquid * Energy::Vapor::C;
+		Energy::Vapor::mcRev = 1 / Energy::Vapor::mc;
 		Energy::Powder::C = Energy::Solid::C;
 		Energy::Powder::mc = Mass::powder * Energy::Powder::C;
 		Energy::Powder::mcRev = 1 / Energy::Powder::mc;
 		Energy::Enthalpy::fusion = double{ processedFile["energy"]["enthalpy"]["fusion"] };
+		Energy::Enthalpy::vaporization = double{ processedFile["energy"]["enthalpy"]["vaporization"] };
 		Energy::Enthalpy::minusRegular = Mass::solid * Energy::Solid::C * Temperature::melting;
 		Energy::Enthalpy::plusRegular = Energy::Enthalpy::minusRegular + Mass::solid * Energy::Enthalpy::fusion;
 		Energy::Enthalpy::minusPowder = Mass::powder * Energy::Powder::C * Temperature::melting;
 		Energy::Enthalpy::plusPowder = Energy::Enthalpy::minusPowder + Mass::powder * Energy::Enthalpy::fusion;
+		Energy::Enthalpy::minusVapor = Energy::Enthalpy::plusRegular + Mass::liquid * Config::Energy::Liquid::C * (Config::Temperature::vaporization - Config::Temperature::melting);
+		Energy::Enthalpy::plusVapor = Energy::Enthalpy::minusVapor + Mass::liquid * Config::Energy::Enthalpy::vaporization;
 
 
 		Radiation::stefanBoltzmannConst = 5.67e-8;
@@ -173,13 +184,16 @@ double      Config::Temperature::air4 = 0.0;
 double      Config::Temperature::initial = 0.0;
 double      Config::Temperature::melting = 0.0;
 double      Config::Temperature::cutOff = 0.0;
+double      Config::Temperature::vaporization = 0.0;
 double      Config::Mass::Rho::solid = 0.0;
 double      Config::Mass::Rho::packing = 0.0;
 double      Config::Mass::Rho::packingRev = 0.0;
 double      Config::Mass::Rho::liquid = 0.0;
+double      Config::Mass::Rho::vapor = 0.0;
 double      Config::Mass::solid = 0.0;
 double      Config::Mass::liquid = 0.0;
 double      Config::Mass::powder = 0.0;
+double      Config::Mass::vapor = 0.0;
 double      Config::Energy::Solid::C = 0.0;
 double      Config::Energy::Solid::KA = 0.0;
 double      Config::Energy::Solid::KB = 0.0;
@@ -190,14 +204,22 @@ double      Config::Energy::Liquid::KA = 0.0;
 double      Config::Energy::Liquid::KB = 0.0;
 double      Config::Energy::Liquid::mc = 0.0;
 double      Config::Energy::Liquid::mcRev = 0.0;
+double      Config::Energy::Vapor::C = 0.0;
+double      Config::Energy::Vapor::KA = 0.0;
+double      Config::Energy::Vapor::KB = 0.0;
+double      Config::Energy::Vapor::mc = 0.0;
+double      Config::Energy::Vapor::mcRev = 0.0;
 double      Config::Energy::Powder::C = 0.0;
 double      Config::Energy::Powder::mc = 0.0;
 double      Config::Energy::Powder::mcRev = 0.0;
 double      Config::Energy::Enthalpy::fusion = 0.0;
+double      Config::Energy::Enthalpy::vaporization = 0.0;
 double      Config::Energy::Enthalpy::minusRegular = 0.0;
 double      Config::Energy::Enthalpy::plusRegular = 0.0;
 double      Config::Energy::Enthalpy::minusPowder = 0.0;
 double      Config::Energy::Enthalpy::plusPowder = 0.0;
+double      Config::Energy::Enthalpy::minusVapor = 0.0;
+double      Config::Energy::Enthalpy::plusVapor = 0.0;
 double      Config::Radiation::stefanBoltzmannConst = 0.0;
 double      Config::Radiation::emmisivity = 0.0;
 double      Config::Radiation::fluxConst = 0.0;

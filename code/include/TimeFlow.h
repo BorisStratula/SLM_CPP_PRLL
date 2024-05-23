@@ -19,7 +19,9 @@ public:
 	uint32_t desiredLogEntries;
 	uint32_t maxDigits;
 	uint32_t logEvery;
+	uint32_t logCount;
 	bool logThisStep;
+	bool lastLog;
 	bool stopSimulation;
 	Timer timerGlobal;
 	Timer timerCalculation;

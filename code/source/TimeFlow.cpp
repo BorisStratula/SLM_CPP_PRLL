@@ -17,7 +17,9 @@ TimeFlow::TimeFlow(const Laser& LASER) {
 	desiredLogEntries = Config::Log::desiredEntries - 1;
 	maxDigits = digitsInValue(desiredLogEntries);
 	logEvery = (uint32_t)round((double)totalIterations / (double)desiredLogEntries);
+	logCount = 0;
 	logThisStep = false;
+	lastLog = false;
 	stopSimulation = false;
 	timerGlobal.start();
 	timerCalculation.start();
@@ -35,6 +37,8 @@ void TimeFlow::advance() {
 	iteration += 1;
 	if (iteration % logEvery == 0) {
 		logThisStep = true;
+		logCount += 1;
+		if (logCount == desiredLogEntries) lastLog = true;
 	}
 }
 
