@@ -30,6 +30,7 @@ public:
 	bool meltedThisTime = false;
 	bool vaporizedThisTime = false;
 	bool wasMoved = false;
+	bool mayBeUnderLaser = false;
 	double T = 0.0;
 	double k = 0.0;
 	double H = 0.0;

@@ -36,6 +36,7 @@ public:
 	void syncBorders(const MeshSector* meshSectors);
 	void addNewLayerOfPowder();
 	void moveDownVaporizedElems();
+	void modifyLaserImpactLandscape(const size_t ID);
 
 
 

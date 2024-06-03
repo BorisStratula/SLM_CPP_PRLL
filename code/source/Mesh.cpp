@@ -54,6 +54,7 @@ void Mesh::createElement(uint32_t elemID, const Vec3I& INDEX_VEC, const Neighbou
 		}
 		Vec3 size = Vec3(nodes[newElem->vertices[6]].vec - nodes[newElem->vertices[0]].vec);
 		newElem->volume = size.x * size.y * size.z;
+		if (newElem->neighbours.zPlus == -1) newElem->mayBeUnderLaser = true;
 	}
 }
 

@@ -57,6 +57,9 @@ void MeshSector::advance() {
 	for (size_t i = 0; i < vacantElemID; i++) {
 		elems[i].calcStep2();
 	}
+	for (size_t i = 0; i < vacantElemID; i++) {
+		modifyLaserImpactLandscape(i);
+	}
 }
 
 void MeshSector::getThisElem(Elem* elem, uint32_t sectorOrBuffer) {
@@ -85,6 +88,10 @@ void MeshSector::copyThisElem(const Elem* elem) {
 	elems[vacantElemID].underLaser = elem->underLaser;
 	elems[vacantElemID].timesMelted = elem->timesMelted;
 	elems[vacantElemID].timesVaporized = elem->timesVaporized;
+	elems[vacantElemID].meltedThisTime = elem->meltedThisTime;
+	elems[vacantElemID].vaporizedThisTime = elem->vaporizedThisTime;
+	elems[vacantElemID].wasMoved = elem->wasMoved;
+	elems[vacantElemID].mayBeUnderLaser = elem->mayBeUnderLaser;
 	elems[vacantElemID].T = elem->T;
 	elems[vacantElemID].k = elem->k;
 	elems[vacantElemID].H = elem->H;
@@ -133,6 +140,8 @@ void MeshSector::syncBorders(const MeshSector* meshSectors) {
 		elems[ID].timesVaporized = meshSectors[persistentSectorID].elems[persistentElemID].timesVaporized;
 		elems[ID].meltedThisTime = meshSectors[persistentSectorID].elems[persistentElemID].meltedThisTime;
 		elems[ID].vaporizedThisTime = meshSectors[persistentSectorID].elems[persistentElemID].vaporizedThisTime;
+		elems[ID].wasMoved = meshSectors[persistentSectorID].elems[persistentElemID].wasMoved;
+		elems[ID].mayBeUnderLaser = meshSectors[persistentSectorID].elems[persistentElemID].mayBeUnderLaser;
 		elems[ID].T = meshSectors[persistentSectorID].elems[persistentElemID].T;
 		elems[ID].k = meshSectors[persistentSectorID].elems[persistentElemID].k;
 		elems[ID].H = meshSectors[persistentSectorID].elems[persistentElemID].H;
@@ -151,6 +160,7 @@ void MeshSector::addNewLayerOfPowder() {
 				elems[ID].state = elems[zPlus].state;
 				elems[ID].timesMelted = elems[zPlus].timesMelted;
 				elems[ID].timesVaporized = elems[zPlus].timesVaporized;
+				elems[ID].mayBeUnderLaser = false;
 				elems[ID].T = elems[zPlus].T;
 				elems[ID].k = elems[zPlus].k;
 				elems[ID].H = elems[zPlus].H * elems[ID].volume / elems[zPlus].volume;
@@ -162,6 +172,7 @@ void MeshSector::addNewLayerOfPowder() {
 				elems[ID].state = static_cast<State>(powder);
 				elems[ID].timesMelted = 0;
 				elems[ID].timesVaporized = 0;
+				elems[ID].mayBeUnderLaser = true;
 				elems[ID].T = Config::Temperature::initial;
 				elems[ID].k = elems[ID].thermalConductivity();
 				elems[ID].H = elems[ID].HofT();
@@ -197,5 +208,14 @@ void MeshSector::moveDownVaporizedElems() {
 		elems[ID].meltedThisTime = false;
 		elems[ID].vaporizedThisTime = false;
 		elems[ID].wasMoved = false;
+	}
+}
+
+void MeshSector::modifyLaserImpactLandscape(const size_t ID) {
+	if (elems[ID].state == vapor and elems[ID].mayBeUnderLaser) {
+		elems[ID].mayBeUnderLaser = false;
+		int32_t zMinus = elems[ID].neighbours.zMinus;
+		zMinus = lookUpTable[zMinus];
+		elems[zMinus].mayBeUnderLaser = true;
 	}
 }

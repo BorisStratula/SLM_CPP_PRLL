@@ -60,6 +60,10 @@ double Laser::heatToElem(Elem* const ELEM) const {
 		ELEM->underLaser = 0;
 		return 0;
 	}
+	else if (!ELEM->mayBeUnderLaser) {
+		ELEM->underLaser = 0;
+		return 0;
+	}
 	else {
 		ELEM->underLaser = 1;
 		//return specificPower;
