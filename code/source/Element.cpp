@@ -29,6 +29,10 @@ bool Elem::init(Elem* elems, uint32_t _ID, const Vec3I& INDEX_VECTOR, const Neig
 	state = static_cast<State>(STATE);
 	underLaser = 0;
 	timesMelted = 0;
+	timesVaporized = 0;
+	meltedThisTime = false;
+	vaporizedThisTime = false;
+	wasMoved = false;
 	T = Config::Temperature::initial;
 	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
@@ -50,7 +54,7 @@ bool Elem::valid() const {
 double Elem::thermalConductivity() const {
 	double sigmoidConst = 1.0;
 	double rhoConstRev = 1.0;
-	if (state == 0) {
+	if (state == powder) {
 		sigmoidConst = Config::Misc::sigmoidConst;
 		rhoConstRev = Config::Mass::Rho::packingRev;
 	}
@@ -67,47 +71,60 @@ double Elem::thermalConductivity() const {
 	}
 	else {
 		double a;
-		double b;
-		if (T < Config::Temperature::melting) {
-			a = Config::Energy::Solid::KA;
-			b = Config::Energy::Solid::KB;
-		}
-		else {
+		double b;		
+		a = Config::Energy::Solid::KA;
+		b = Config::Energy::Solid::KB;
+		if (T > Config::Temperature::melting) {
 			a = Config::Energy::Liquid::KA;
 			b = Config::Energy::Liquid::KB;
+		}
+		if (T > Config::Temperature::vaporization) {
+			a = Config::Energy::Vapor::KA;
+			b = Config::Energy::Vapor::KB;
 		}
 		return (a * T + b) * sigmoidConst;
 	}
 }
 
 double Elem::TofH() const {
-	double HMinus;
-	double HPlus;
+	double HLiquidMinus;
+	double HLiquidPlus;
+	double HVaporMinus = localConfig.energy.enthalpy.minusVapor;;
+	double HVaporPlus  = localConfig.energy.enthalpy.plusVapor;;
 	double mcRev;
-	if (state == 0) {
-		HMinus = localConfig.energy.enthalpy.minusPowder;
-		HPlus =  localConfig.energy.enthalpy.plusPowder;
+	if (state == powder) {
+		HLiquidMinus = localConfig.energy.enthalpy.minusPowder;
+		HLiquidPlus =  localConfig.energy.enthalpy.plusPowder;
 		mcRev =  localConfig.energy.powder.mcRev;
 	}
 	else {
-		HMinus = localConfig.energy.enthalpy.minusRegular;
-		HPlus =  localConfig.energy.enthalpy.plusRegular;
-		if (state == 1) {
+		HLiquidMinus = localConfig.energy.enthalpy.minusRegular;
+		HLiquidPlus =  localConfig.energy.enthalpy.plusRegular;
+		mcRev = localConfig.energy.solid.mcRev;
+		if (state == liquid) {
 			mcRev = localConfig.energy.liquid.mcRev;
 		}
-		else {
-			mcRev = localConfig.energy.solid.mcRev;
+		if (state == vapor) {
+			mcRev = localConfig.energy.vapor.mcRev;
 		}
+
 	}
-	if                     (H < HMinus) return H * mcRev;
-	else if (H > HMinus and H <= HPlus) return Config::Temperature::melting;
-	else                                return Config::Temperature::melting + (H - HPlus) * mcRev;
+	if      (H < HLiquidMinus) return H * mcRev;
+	else if (H < HLiquidPlus)  return Config::Temperature::melting;
+	else if (H < HVaporMinus)  return Config::Temperature::melting + (H - HLiquidPlus) * mcRev;
+	else if (H < HVaporPlus)   return Config::Temperature::vaporization;
+	else                       return Config::Temperature::vaporization + (H - HVaporPlus) * mcRev;
 }
 
 double Elem::HofT() const {
-	if (T > Config::Temperature::melting) return localConfig.energy.liquid.mc * (T - Config::Temperature::melting) + localConfig.energy.enthalpy.plusRegular;
-	else if (state == 0)                  return localConfig.energy.powder.mc * T;
-	else                                  return localConfig.energy.solid.mc * T;
+	//if (T > Config::Temperature::melting) return localConfig.energy.liquid.mc * (T - Config::Temperature::melting) + localConfig.energy.enthalpy.plusRegular;
+	//else if (state == 0)                  return localConfig.energy.powder.mc * T;
+	//else                                  return localConfig.energy.solid.mc * T;
+
+	if (T > Config::Temperature::vaporization) return localConfig.energy.vapor.mc * (T - Config::Temperature::vaporization) + localConfig.energy.enthalpy.plusVapor;
+	else if (T > Config::Temperature::melting) return localConfig.energy.liquid.mc * (T - Config::Temperature::melting) + localConfig.energy.enthalpy.plusRegular;
+	else if (state == powder)                  return localConfig.energy.powder.mc * T;
+	else                                       return localConfig.energy.solid.mc * T;
 }
 
 double Elem::enthalpyFlow(const Laser* LASER) {
@@ -265,25 +282,41 @@ void Elem::fetchConfig() {
 	);
 	localConfig.mass.solid =  localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::solid;
 	localConfig.mass.liquid = localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::liquid;
+	localConfig.mass.vapor =  localConfig.geometry.step.x * localConfig.geometry.step.y * localConfig.geometry.step.z * Config::Mass::Rho::vapor;
 	localConfig.mass.powder = localConfig.mass.solid * Config::Mass::Rho::packing;
 	localConfig.energy.solid.mc =  localConfig.mass.solid * Config::Energy::Solid::C;
 	localConfig.energy.liquid.mc = localConfig.mass.liquid * Config::Energy::Liquid::C;
+	localConfig.energy.vapor.mc =  localConfig.mass.vapor * Config::Energy::Vapor::C;
 	localConfig.energy.powder.mc = localConfig.mass.powder * Config::Energy::Solid::C;
-	localConfig.energy.solid.mcRev =  1 / localConfig.energy.solid.mc;
-	localConfig.energy.liquid.mcRev = 1 / localConfig.energy.liquid.mc;
-	localConfig.energy.powder.mcRev = 1 / localConfig.energy.powder.mc;
+	localConfig.energy.solid.mcRev =  1.0 / localConfig.energy.solid.mc;
+	localConfig.energy.liquid.mcRev = 1.0 / localConfig.energy.liquid.mc;
+	localConfig.energy.vapor.mcRev =  1.0 / localConfig.energy.vapor.mc; 
+	localConfig.energy.powder.mcRev = 1.0 / localConfig.energy.powder.mc;
 	localConfig.energy.enthalpy.minusRegular = localConfig.mass.solid * Config::Energy::Solid::C * Config::Temperature::melting;
 	localConfig.energy.enthalpy.minusPowder =  localConfig.mass.powder * Config::Energy::Solid::C * Config::Temperature::melting;
 	localConfig.energy.enthalpy.plusRegular =  localConfig.energy.enthalpy.minusRegular + localConfig.mass.solid * Config::Energy::Enthalpy::fusion;
 	localConfig.energy.enthalpy.plusPowder =   localConfig.energy.enthalpy.minusPowder + localConfig.mass.powder * Config::Energy::Enthalpy::fusion;
+	localConfig.energy.enthalpy.minusVapor = localConfig.energy.enthalpy.plusRegular + localConfig.mass.liquid * Config::Energy::Liquid::C * (Config::Temperature::vaporization - Config::Temperature::melting);
+	localConfig.energy.enthalpy.plusVapor = localConfig.energy.enthalpy.minusVapor + localConfig.mass.liquid * Config::Energy::Enthalpy::vaporization;
 }
 
 void Elem::chechState() {
-	if (T > Config::Temperature::melting) {
+	if (T > Config::Temperature::vaporization) {
+		if (state == liquid) {
+			state = vapor;
+			timesVaporized += 1;
+			vaporizedThisTime = true;
+		}
+	}
+	if (T > Config::Temperature::melting and T < Config::Temperature::vaporization) {
 		if (state == solid or state == powder) {
 			if (state == powder) H = HofT();
 			state = liquid;
 			timesMelted += 1;
+			meltedThisTime = true;
+		}
+		if (state == vapor) {
+			state = liquid;
 		}
 	}
 	if (T < Config::Temperature::melting) {

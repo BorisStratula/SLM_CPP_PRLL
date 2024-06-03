@@ -35,6 +35,7 @@ public:
 	void checkIfElemIsOnBorder(Elem* elem);
 	void syncBorders(const MeshSector* meshSectors);
 	void addNewLayerOfPowder();
+	void moveDownVaporizedElems();
 
 
 

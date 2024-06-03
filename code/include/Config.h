@@ -45,6 +45,7 @@ public:
 		static double air4;
 		static double initial;
 		static double melting;
+		static double vaporization;
 		static double cutOff;
 	};
 
@@ -54,9 +55,11 @@ public:
 			static double packing;
 			static double packingRev;
 			static double liquid;
+			static double vapor;
 		};
 		static double solid;
 		static double liquid;
+		static double vapor;
 		static double powder;
 	};
 
@@ -75,6 +78,13 @@ public:
 			static double mc;
 			static double mcRev;
 		};
+		struct Vapor {
+			static double C;
+			static double KA;
+			static double KB;
+			static double mc;
+			static double mcRev;
+		};
 		struct Powder {
 			static double C;
 			static double mc;
@@ -86,6 +96,9 @@ public:
 			static double plusRegular;
 			static double minusPowder;
 			static double plusPowder;
+			static double vaporization;
+			static double minusVapor;
+			static double plusVapor;
 		};
 	};
 

@@ -77,6 +77,7 @@ void DataWriter::writeSolutionFile(const std::string& FILE_NAME, const BodyData&
     writer.add_cell_scalar_field("laser specific powe", BODY_DATA.qDebug);
     writer.add_cell_scalar_field("wall flux", BODY_DATA.MDebug);
     writer.add_cell_scalar_field("times melted", BODY_DATA.timesMelted);
+    writer.add_cell_scalar_field("times vaporized", BODY_DATA.timesVaporized);
     writer.add_cell_scalar_field("state", BODY_DATA.state);
     writer.add_cell_scalar_field("sector", BODY_DATA.sector);
 

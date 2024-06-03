@@ -21,6 +21,7 @@ public:
 	std::vector<double> qDebug;
 	std::vector<double> MDebug;
 	std::vector<double> timesMelted;
+	std::vector<double> timesVaporized;
 	std::vector<double> sector;
 	double TMax;
 

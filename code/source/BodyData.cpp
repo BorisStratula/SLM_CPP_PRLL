@@ -15,6 +15,7 @@ BodyData::BodyData(const Mesh* const MESH, const MeshSector* const MESH_SECTORS)
 	qDebug = std::vector<double>(totalElems);
 	MDebug = std::vector<double>(totalElems);
 	timesMelted = std::vector<double>(totalElems);
+	timesVaporized = std::vector<double>(totalElems);
 	sector = std::vector<double>(totalElems);
 	TMax = 0;
 	extractMeshData(MESH);
@@ -39,6 +40,7 @@ void BodyData::advance(const Mesh* const MESH) {
 		qDebug[elem] = MESH->elems[elem].qDebug;
 		MDebug[elem] = MESH->elems[elem].MDebug;
 		timesMelted[elem] = MESH->elems[elem].timesMelted;
+		timesVaporized[elem] = MESH->elems[elem].timesVaporized;
 		state[elem] = MESH->elems[elem].state;
 	}
 }
@@ -60,6 +62,7 @@ void BodyData::advance(const MeshSector* const MESH_SECTORS) {
 				qDebug[elem->globalID] = elem->qDebug;
 				MDebug[elem->globalID] = elem->MDebug;
 				timesMelted[elem->globalID] = elem->timesMelted;
+				timesVaporized[elem->globalID] = elem->timesVaporized;
 				state[elem->globalID] = elem->state;
 			}
 		}

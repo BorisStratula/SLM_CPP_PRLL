@@ -7,7 +7,7 @@
 		"elems": {
 			"x": 40,
 			"y": 40,
-			"z": 20
+			"z": 30
 		},
 		"step": {
 			"x": 10e-6,
@@ -17,7 +17,7 @@
 		"coarsen after": {
 			"x": [ 14, 18, 22 ],
 			"y": [ 14, 18, 22 ],
-			"z": [ 14, 18, 22 ]
+			"z": [ 24, 26, 28 ]
 		},
 		"powder thickness": 60e-6,
 		"buffer zone, elems": 1
@@ -33,14 +33,16 @@
   "temperatures": {
 	  "air": 300,
 	  "initial": 300,
-	  "melting": 1923,
+		"melting": 1923,
+		"vaporization": 3530,
 	  "cut off": 2200
   },
   "mass": {
 	  "rho": {
 		  "solid": 4400,
 		  "packing": 0.65,
-		  "liquid": 3900
+			"liquid": 3900,
+			"vapor": 3900
 	  }
   },
   "energy": {
@@ -54,8 +56,14 @@
 			"KA": 0.01808,
 			"KB": -6.12967
 		},
+		"vapor": {
+			"C": 1150,
+			"KA": 0.01808,
+			"KB": -6.12967
+		},
 		"enthalpy": {
-			"fusion": 286000
+			"fusion": 286000,
+			"vaporization": 6000000
 		}
   },
   "radiation": {
@@ -77,7 +85,7 @@
 		},
 		"radius": 40e-6,
 		"side step multiplier": 2,
-		"power": 50,
+		"power": 195,
 		"absorbtion": 0.8,
 		"state": true,
 		"tracks": 2,

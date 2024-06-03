@@ -84,7 +84,7 @@ void MeshSector::copyThisElem(const Elem* elem) {
 	elems[vacantElemID].state = elem->state;
 	elems[vacantElemID].underLaser = elem->underLaser;
 	elems[vacantElemID].timesMelted = elem->timesMelted;
-	//elems[vacantElemID].wasProcessed = elem->wasProcessed;
+	elems[vacantElemID].timesVaporized = elem->timesVaporized;
 	elems[vacantElemID].T = elem->T;
 	elems[vacantElemID].k = elem->k;
 	elems[vacantElemID].H = elem->H;
@@ -130,6 +130,9 @@ void MeshSector::syncBorders(const MeshSector* meshSectors) {
 		elems[ID].state = meshSectors[persistentSectorID].elems[persistentElemID].state;
 		elems[ID].underLaser = meshSectors[persistentSectorID].elems[persistentElemID].underLaser;
 		elems[ID].timesMelted = meshSectors[persistentSectorID].elems[persistentElemID].timesMelted;
+		elems[ID].timesVaporized = meshSectors[persistentSectorID].elems[persistentElemID].timesVaporized;
+		elems[ID].meltedThisTime = meshSectors[persistentSectorID].elems[persistentElemID].meltedThisTime;
+		elems[ID].vaporizedThisTime = meshSectors[persistentSectorID].elems[persistentElemID].vaporizedThisTime;
 		elems[ID].T = meshSectors[persistentSectorID].elems[persistentElemID].T;
 		elems[ID].k = meshSectors[persistentSectorID].elems[persistentElemID].k;
 		elems[ID].H = meshSectors[persistentSectorID].elems[persistentElemID].H;
@@ -147,6 +150,7 @@ void MeshSector::addNewLayerOfPowder() {
 				zPlus = lookUpTable[zPlus];
 				elems[ID].state = elems[zPlus].state;
 				elems[ID].timesMelted = elems[zPlus].timesMelted;
+				elems[ID].timesVaporized = elems[zPlus].timesVaporized;
 				elems[ID].T = elems[zPlus].T;
 				elems[ID].k = elems[zPlus].k;
 				elems[ID].H = elems[zPlus].H * elems[ID].volume / elems[zPlus].volume;
@@ -157,6 +161,7 @@ void MeshSector::addNewLayerOfPowder() {
 			else {
 				elems[ID].state = static_cast<State>(powder);
 				elems[ID].timesMelted = 0;
+				elems[ID].timesVaporized = 0;
 				elems[ID].T = Config::Temperature::initial;
 				elems[ID].k = elems[ID].thermalConductivity();
 				elems[ID].H = elems[ID].HofT();
@@ -165,5 +170,32 @@ void MeshSector::addNewLayerOfPowder() {
 				elems[ID].MDebug = 0;
 			}
 		}
+	}
+}
+
+void MeshSector::moveDownVaporizedElems() {
+	for (size_t ID = 0; ID < vacantElemID; ID++) {
+		if (elems[ID].vaporizedThisTime and !elems[ID].wasMoved) {
+			int32_t zMinus = elems[ID].neighbours.zMinus;
+			zMinus = lookUpTable[zMinus];
+			while (!elems[ID].wasMoved) {
+				if (elems[zMinus].meltedThisTime == false) {
+					elems[zMinus].meltedThisTime = true;
+					elems[zMinus].state = solid;
+					elems[zMinus].timesMelted += 1;
+					elems[ID].wasMoved = true;
+				}
+				else {
+					zMinus = elems[zMinus].neighbours.zMinus;
+					zMinus = lookUpTable[zMinus];
+					if (zMinus == -1) elems[ID].wasMoved = true;
+				}
+			}
+		}
+	}
+	for (size_t ID = 0; ID < vacantElemID; ID++) {
+		elems[ID].meltedThisTime = false;
+		elems[ID].vaporizedThisTime = false;
+		elems[ID].wasMoved = false;
 	}
 }

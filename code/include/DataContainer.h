@@ -24,6 +24,7 @@ public:
 
 	void init(size_t ID, MeshSector* meshSectors, MeshSector* allMeshSectors, Laser* laser, TimeFlow* timeFlow);
 	void advance();
+	void moveDownVaporizedElems();
 	void addNewLayerOfPowder();
 	void sync(MeshSector* meshSectors);
 	static void syncContainers(MeshSector* meshSectors, DataContainer* dataContainers);
