@@ -33,6 +33,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const Vec3I& INDEX_VECTOR, const Neig
 	meltedThisTime = false;
 	vaporizedThisTime = false;
 	wasMoved = false;
+	mayBeUnderLaser = false;
 	T = Config::Temperature::initial;
 	//if (ID == 0) T = 1700.0;
 	k = thermalConductivity();
@@ -208,8 +209,7 @@ double Elem::thetaB(const int32_t BACKWARD_ID, const MeshSector* const MESH_SECT
 }
 
 double Elem::laserFlux(const Laser* LASER) {
-	if (neighbours.zPlus == -1) return LASER->heatToElem(this) * localConfig.geometry.surfaceArea.z;
-	else return 0.0;
+	return LASER->heatToElem(this) * localConfig.geometry.surfaceArea.z;
 }
 
 double Elem::radiantFlux() const {
