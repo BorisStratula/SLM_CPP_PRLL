@@ -82,6 +82,7 @@ public:
 			static double C;
 			static double KA;
 			static double KB;
+			static double anisotropyOfK;
 			static double mc;
 			static double mcRev;
 		};

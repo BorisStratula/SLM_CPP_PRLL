@@ -36,7 +36,7 @@ bool Elem::init(Elem* elems, uint32_t _ID, const Vec3I& INDEX_VECTOR, const Neig
 	mayBeUnderLaser = false;
 	T = Config::Temperature::initial;
 	//if (ID == 0) T = 1700.0;
-	k = thermalConductivity();
+	k = Vec3(thermalConductivity(), thermalConductivity(), thermalConductivity());
 	H = HofT();
 	HFlow = 0.0;
 	qDebug = 0.0;
@@ -153,54 +153,20 @@ double Elem::thetaAlongAxis(const int32_t FORWARD_ID, const int32_t BACKWARD_ID,
 
 double Elem::thetaIncoming(const int32_t EXTERNAL_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
 	// heat flow from external to current elem
-	double t = (MESH_SECTOR->elems[EXTERNAL_ID].k + k) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
+	//double t = (MESH_SECTOR->elems[EXTERNAL_ID].k + k) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
+	double t = 0.0;
 	switch (AXIS) {
 	case 1:
+		t = (MESH_SECTOR->elems[EXTERNAL_ID].k.x + k.x) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
 		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.x);
 		return t;
 	case 2:
+		t = (MESH_SECTOR->elems[EXTERNAL_ID].k.y + k.y) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
 		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.y);
 		return t;
 	case 3:
+		t = (MESH_SECTOR->elems[EXTERNAL_ID].k.z + k.z) * (MESH_SECTOR->elems[EXTERNAL_ID].T - T);
 		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[EXTERNAL_ID].localConfig.geometry.step.z);
-		return t;
-	default:
-		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
-		exit(5);
-	}
-}
-
-double Elem::thetaF(const int32_t FORWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	// heat flow from forward to current elem
-	double t = (MESH_SECTOR->elems[FORWARD_ID].k + k) * (MESH_SECTOR->elems[FORWARD_ID].T - T);
-	switch (AXIS) {
-	case 1:
-		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.x);
-		return t;
-	case 2:
-		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.y);
-		return t;
-	case 3:
-		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[FORWARD_ID].localConfig.geometry.step.z);
-		return t;
-	default:
-		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
-		exit(5);
-	}
-}
-
-double Elem::thetaB(const int32_t BACKWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const {
-	// heat flow from current  to backward elem
-	double t = (k + MESH_SECTOR->elems[BACKWARD_ID].k) * (T - MESH_SECTOR->elems[BACKWARD_ID].T);
-	switch (AXIS) {
-	case 1:
-		t = t / (localConfig.geometry.step.x + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.x);
-		return t;
-	case 2:
-		t = t / (localConfig.geometry.step.y + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.y);
-		return t;
-	case 3:
-		t = t / (localConfig.geometry.step.z + MESH_SECTOR->elems[BACKWARD_ID].localConfig.geometry.step.z);
 		return t;
 	default:
 		printf("Wrond axis specified, only 1, 2 and 3 are allowed\n");
@@ -221,9 +187,9 @@ double Elem::wallFlux(const Neighbours& NEIGHBOURS) const {
 	if (onSurface.sum() == 0) return 0.0;
 	else {
 		double totalFlux = 0.0;
-		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
-		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
-		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z *    k * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
+		if         (onSurface.x > 0) totalFlux += localConfig.geometry.surfaceArea.x *  k.x * (T - Config::Temperature::air) * localConfig.geometry.stepRev.x;
+		if         (onSurface.y > 0) totalFlux += localConfig.geometry.surfaceArea.y *  k.y * (T - Config::Temperature::air) * localConfig.geometry.stepRev.y;
+		if (NEIGHBOURS.zMinus == -1) totalFlux += localConfig.geometry.surfaceArea.z *  k.z * (T - Config::Temperature::air) * localConfig.geometry.stepRev.z;
 		if (NEIGHBOURS.zPlus == -1)  totalFlux += localConfig.geometry.surfaceArea.z * 10.0 * (T - Config::Temperature::air);
 		return totalFlux;
 	}
@@ -328,7 +294,17 @@ void Elem::chechState() {
 
 void Elem::updateKandT() {
 	T = TofH();
-	k = thermalConductivity();
+	double kPrecalc = thermalConductivity();
+	if (state == vapor) {
+		k = Vec3(
+			kPrecalc * Config::Energy::Vapor::anisotropyOfK,
+			kPrecalc * Config::Energy::Vapor::anisotropyOfK, 
+			kPrecalc
+		);
+	}
+	else {
+		k = Vec3(kPrecalc, kPrecalc, kPrecalc);
+	}
 }
 
 void Elem::calcStep1(const Laser* LASER) {
