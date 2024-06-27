@@ -74,6 +74,7 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
+		Geometry::adaptiveLandscape = bool{ processedFile["geometry"]["adaptive landscape"] };
 
 
 		Time::start = double{ processedFile["time"]["start"] };
@@ -176,6 +177,7 @@ double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 Vec3I       Config::Geometry::buffer = Vec3I();
+bool        Config::Geometry::adaptiveLandscape = false;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;

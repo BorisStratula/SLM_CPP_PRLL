@@ -20,7 +20,8 @@
 			"z": [ 24, 26, 28 ]
 		},
 		"powder thickness": 60e-6,
-		"buffer zone, elems": 1
+		"buffer zone, elems": 1,
+		"adaptive landscape":  true
   },
   "time": {
 	  "start": 0,
@@ -89,7 +90,7 @@
 		"power": 195,
 		"absorbtion": 0.8,
 		"state": true,
-		"tracks": 2,
-		"layers": 2
+		"tracks": 1,
+		"layers": 1
   }
 }

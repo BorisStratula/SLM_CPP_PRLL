@@ -28,6 +28,7 @@ public:
 		static double powderThickness;
 		static double surfaceArea;
 		static Vec3I buffer;
+		static bool adaptiveLandscape;
 	};
 
 	struct Time {
