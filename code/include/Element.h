@@ -32,7 +32,7 @@ public:
 	bool wasMoved = false;
 	bool mayBeUnderLaser = false;
 	double T = 0.0;
-	double k = 0.0;
+	Vec3 k = Vec3(0.0, 0.0, 0.0);
 	double H = 0.0;
 	double HFlow = 0.0;
 	double qDebug = 0.0;
@@ -92,8 +92,6 @@ public:
 	double HofT() const;
 	double enthalpyFlow(const Laser* LASER);
 	double thetaAlongAxis(const int32_t FORWARD_ID, const int32_t BACKWARD_ID, const uint32_t AXIS, const MeshSector* const MESH_SECTOR) const;
-	double thetaF(const int32_t FORWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
-	double thetaB(const int32_t BACKWARD_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
 	double thetaIncoming(const int32_t EXTERNAL_ID, const MeshSector* const MESH_SECTOR, const uint32_t AXIS) const;
 	double laserFlux(const Laser* LASER);
 	double radiantFlux() const;

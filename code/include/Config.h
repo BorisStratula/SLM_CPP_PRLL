@@ -28,6 +28,7 @@ public:
 		static double powderThickness;
 		static double surfaceArea;
 		static Vec3I buffer;
+		static bool adaptiveLandscape;
 	};
 
 	struct Time {
@@ -82,6 +83,7 @@ public:
 			static double C;
 			static double KA;
 			static double KB;
+			static double anisotropyOfK;
 			static double mc;
 			static double mcRev;
 		};

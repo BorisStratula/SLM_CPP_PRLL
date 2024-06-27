@@ -74,6 +74,7 @@ void Config::readConfig() {
 			int32_t{ processedFile["geometry"]["buffer zone, elems"] },
 			0
 		);
+		Geometry::adaptiveLandscape = bool{ processedFile["geometry"]["adaptive landscape"] };
 
 
 		Time::start = double{ processedFile["time"]["start"] };
@@ -118,6 +119,7 @@ void Config::readConfig() {
 		Energy::Vapor::C = double{ processedFile["energy"]["vapor"]["C"] };
 		Energy::Vapor::KA = double{ processedFile["energy"]["vapor"]["KA"] };
 		Energy::Vapor::KB = double{ processedFile["energy"]["vapor"]["KB"] };
+		Energy::Vapor::anisotropyOfK = double{ processedFile["energy"]["vapor"]["anisotropy of K"] };
 		Energy::Vapor::mc = Mass::liquid * Energy::Vapor::C;
 		Energy::Vapor::mcRev = 1 / Energy::Vapor::mc;
 		Energy::Powder::C = Energy::Solid::C;
@@ -175,6 +177,7 @@ double      Config::Geometry::stepCoeff = 0.0;
 double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 Vec3I       Config::Geometry::buffer = Vec3I();
+bool        Config::Geometry::adaptiveLandscape = false;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;
@@ -209,6 +212,7 @@ double      Config::Energy::Vapor::KA = 0.0;
 double      Config::Energy::Vapor::KB = 0.0;
 double      Config::Energy::Vapor::mc = 0.0;
 double      Config::Energy::Vapor::mcRev = 0.0;
+double      Config::Energy::Vapor::anisotropyOfK = 0.0;
 double      Config::Energy::Powder::C = 0.0;
 double      Config::Energy::Powder::mc = 0.0;
 double      Config::Energy::Powder::mcRev = 0.0;

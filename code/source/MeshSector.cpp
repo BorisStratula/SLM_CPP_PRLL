@@ -57,9 +57,12 @@ void MeshSector::advance() {
 	for (size_t i = 0; i < vacantElemID; i++) {
 		elems[i].calcStep2();
 	}
-	for (size_t i = 0; i < vacantElemID; i++) {
-		modifyLaserImpactLandscape(i);
+	if (Config::Geometry::adaptiveLandscape) {
+		for (size_t i = 0; i < vacantElemID; i++) {
+			modifyLaserImpactLandscape(i);
+		}
 	}
+	
 }
 
 void MeshSector::getThisElem(Elem* elem, uint32_t sectorOrBuffer) {

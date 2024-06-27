@@ -31,7 +31,7 @@ void BodyData::advance(const Mesh* const MESH) {
 	TMax = 0;
 	for (uint32_t elem = 0; elem < totalElems; elem++) {
 		H[elem] = MESH->elems[elem].H;
-		k[elem] = MESH->elems[elem].k;
+		k[elem] = MESH->elems[elem].k.z; // TODO Implement Vec Output
 		T[elem] = MESH->elems[elem].T;
 		if (T[elem] > TMax) {
 			TMax = T[elem];
@@ -53,7 +53,7 @@ void BodyData::advance(const MeshSector* const MESH_SECTORS) {
 			if (elem->persistentSectorID == -1) {
 				sector[elem->globalID] = (double)sectorID;
 				H[elem->globalID] = elem->H;
-				k[elem->globalID] = elem->k;
+				k[elem->globalID] = elem->k.z; // TODO Implement Vec Output
 				T[elem->globalID] = elem->T;
 				if (T[elem->globalID] > TMax) {
 					TMax = T[elem->globalID];
