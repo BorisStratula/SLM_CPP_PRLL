@@ -158,6 +158,8 @@ void Config::readConfig() {
 		Laser::state = bool{ processedFile["laser"]["state"] };
 		Laser::tracks = uint32_t{ processedFile["laser"]["tracks"] };
 		Laser::layers = uint32_t{ processedFile["laser"]["layers"] };
+		Laser::decayDepthInv = 1.0 / double{ processedFile["laser"]["decayDepth"] };
+		
 	}
 	catch (...) {
 		std::cout << "Error while parsing config file" << std::endl;
@@ -178,6 +180,7 @@ double      Config::Geometry::powderThickness = 0.0;
 double      Config::Geometry::surfaceArea = 0.0;
 Vec3I       Config::Geometry::buffer = Vec3I();
 bool        Config::Geometry::adaptiveLandscape = false;
+double      Config::Geometry::maxZ = 0.0;
 double      Config::Time::start = 0.0;
 double      Config::Time::step = 0.0;
 double      Config::Time::end = 0.0;
@@ -237,5 +240,6 @@ double		Config::Laser::sideStep = 0.0;
 bool        Config::Laser::state = false;
 uint32_t	Config::Laser::tracks = 0;
 uint32_t	Config::Laser::layers = 0;
+double      Config::Laser::decayDepthInv = 0.0;
 double      Config::Misc::sigmoidConst = 0.0;
 double      Config::Misc::sigmoidConstRev = 0.0;

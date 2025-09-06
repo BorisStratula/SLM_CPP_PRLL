@@ -91,6 +91,7 @@
 		"absorbtion": 0.8,
 		"state": true,
 		"tracks": 1,
-		"layers": 1
+		"layers": 1,
+		"decayDepth": 0.001
   }
 }

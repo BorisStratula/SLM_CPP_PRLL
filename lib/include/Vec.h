@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+template <typename T> T clamp(T a, T min, T max) { if (a > max) { return max; } else if (a < min) { return min; } return a; }
+
 #define VEC_FOR for(size_t i = 0; i < N; i++)
 #define VEC_TEMPLATE template <typename T, size_t N>
 #define VEC_TEMPLATE_T template <typename T>

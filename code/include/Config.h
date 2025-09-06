@@ -29,6 +29,7 @@ public:
 		static double surfaceArea;
 		static Vec3I buffer;
 		static bool adaptiveLandscape;
+		static double maxZ;
 	};
 
 	struct Time {
@@ -121,6 +122,7 @@ public:
 		static bool state;
 		static uint32_t tracks;
 		static uint32_t layers;
+		static double decayDepthInv;
 	};
 
 	struct Misc {

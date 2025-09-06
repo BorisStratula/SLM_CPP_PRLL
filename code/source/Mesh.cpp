@@ -100,6 +100,7 @@ void Mesh::createMesh() {
 				neighboursTruncated = neighbours;
 				neighboursTruncated.truncate();
 				createElement(elemID, indexVector, neighbours, neighboursTruncated, state);
+				if (elems[elemID].vec.z > Config::Geometry::maxZ) Config::Geometry::maxZ = elems[elemID].vec.z;
 				elemID += 1;
 			}
 		}

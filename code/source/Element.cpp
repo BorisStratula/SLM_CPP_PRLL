@@ -136,7 +136,11 @@ double Elem::enthalpyFlow(const Laser* LASER) {
 	);
 	thetaVec = thetaVec * localConfig.geometry.surfaceArea;
 	double theta = thetaVec.x + thetaVec.y + thetaVec.z;
-	double q = laserFlux(LASER);
+	double q0 = laserFlux(LASER);
+	// at top surface q is from laser flux going down it linearly regres'
+	// q = a * z + b
+	double q = q0 * (1.0 + (vec.z - Config::Geometry::maxZ) * Config::Laser::decayDepthInv);
+	q = clamp(q, 0.0, q0);
 	qDebug = q;
 	double M = radiantFlux();
 	M += wallFlux(neighbours);
